@@ -1,0 +1,67 @@
+@model SymphonyLimited.Models.Admission
+@{
+    ViewData["Title"] = "Admission Form";
+    Layout = "_Layout";
+}
+<link rel="stylesheet" href="~/css/admission.css" asp-append-version="true" />
+
+<div class="container py-4">
+    <h2 class="mb-4">Admission Form</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+    @if (ViewBag.Message != null)
+{
+    <div class="alert alert-success">@ViewBag.Message</div>
+}
+
+
+    <form asp-action="Index" method="post">
+        @Html.AntiForgeryToken()
+
+        <div class="mb-3">
+            <label asp-for="StudentName" class="form-label"></label>
+            <input asp-for="StudentName" class="form-control" />
+            <span asp-validation-for="StudentName" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Phone" class="form-label"></label>
+            <input asp-for="Phone" class="form-control" />
+            <span asp-validation-for="Phone" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Course" class="form-label"></label>
+            <input asp-for="Course" class="form-control" />
+            <span asp-validation-for="Course" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="AdmissionDate" class="form-label"></label>
+            <input asp-for="AdmissionDate" class="form-control" type="date" />
+            <span asp-validation-for="AdmissionDate" class="text-danger"></span>
+        </div>
+
+<div class="form-group">
+    <label for="Message">Message</label>
+    <textarea class="form-control" name="Message" id="Message" rows="4" required></textarea>
+</div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

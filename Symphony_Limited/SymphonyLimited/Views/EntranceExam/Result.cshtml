@@ -1,0 +1,17 @@
+@model SymphonyLimited.Models.EntranceExamResult
+
+<div class="result-card">
+    <h3 class="text-success">Result Found</h3>
+    
+    <div class="result-details">
+        <p><i class="fas fa-user"></i> <strong>Name:</strong> @Model.StudentName</p>
+        <p><i class="fas fa-id-card"></i> <strong>Roll Number:</strong> @Model.RollNumber</p>
+        <p><strong>Marks:</strong> @Model.Marks</p>
+        <p><strong>Class Allotted:</strong> @Model.ClassAllotted</p>
+        <p><strong>Course Fee:</strong> @Model.FeeAmount.ToString("C")</p>
+        <p><strong>Last Date for Payment:</strong> @Model.PaymentDueDate.ToShortDateString()</p>
+    </div>
+
+    <a href="/EntranceExam" class="btn btn-secondary mt-3">Back</a>
+    
+</div>

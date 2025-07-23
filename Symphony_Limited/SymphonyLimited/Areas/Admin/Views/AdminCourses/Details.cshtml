@@ -1,0 +1,43 @@
+@model SymphonyLimited.Models.Course
+
+@{
+    ViewData["Title"] = "Course Details";
+    Layout = "_Layout";
+}
+
+<div class="container py-4">
+    <h1 class="text-center">@Model.CourseName</h1>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <img src="@Url.Content(Model.ImageUrl)" class="img-fluid rounded shadow" alt="@Model.CourseName" />
+        </div>
+
+        <div class="col-md-6">
+            <h4>Description</h4>
+            <p>@Model.Description</p>
+
+            <h5>Duration: <span class="text-primary">@Model.Duration</span></h5>
+
+            @if (!string.IsNullOrWhiteSpace(Model.TopicsCovered))
+            {
+                <h5>Topics Covered:</h5>
+                <ul>
+                    @foreach (var topic in Model.TopicsCovered.Split(','))
+                    {
+                        <li>@topic.Trim()</li>
+                    }
+                </ul>
+            }
+
+            @if (Model.IsNew)
+            {
+                <span class="badge bg-success">New Course</span>
+            }
+        </div>
+    </div>
+
+    <div class="mt-4 text-center">
+        <a asp-action="Index" class="btn btn-secondary">Back to Courses</a>
+    </div>
+</div>
