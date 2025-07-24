@@ -1,0 +1,30 @@
+﻿@model SymphonyLimited.ViewModels.AdminLoginViewModel
+@{
+    ViewData["Title"] = "Admin Login";
+    Layout = null;
+}
+<link rel="stylesheet" href="~/admin/css/login.css" />
+
+<div class="login-container">
+    <h2>Admin Login</h2>
+    <form method="post" asp-action="Login">
+        <div class="input-group">
+            <label asp-for="Username">Username</label>
+            <input asp-for="Username" class="form-control" />
+            <span asp-validation-for="Username" class="text-danger"></span>
+        </div>
+
+        <div class="input-group">
+            <label asp-for="Password">Password</label>
+            <input asp-for="Password" class="form-control" type="password" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <button type="submit">Login</button>
+
+        @if (ViewData["Error"] != null)
+        {
+            <div class="error-message">@ViewData["Error"]</div>
+        }
+    </form>
+</div>

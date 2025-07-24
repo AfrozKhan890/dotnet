@@ -1,0 +1,31 @@
+@{
+    ViewData["Title"] = "Entrance Examination";
+}
+<link rel="stylesheet" href="~/css/entrance.css">
+<div class="exam-container">
+    <h2>Entrance Examination Details</h2>
+    <div class="exam-info">
+        <p><strong>Date:</strong> 20 August 2025</p>
+        <p><strong>Time:</strong> 10:00 AM</p>
+        <p><strong>Venue:</strong> Main Campus</p>
+    </div>
+
+    <div class="result-check-form">
+        <h3>Check Your Result</h3>
+        
+        <form method="post" asp-action="Result">
+            <div class="form-group">
+                <label for="rollNumber">Enter Roll Number:</label>
+                <input type="text" name="rollNumber" class="form-control" required />
+            </div>
+            <button type="submit" class="btn btn-primary">Check Result</button>
+        </form>
+
+        @if (ViewBag.Message != null)
+        {
+            <div class="alert alert-warning">
+                @ViewBag.Message
+            </div>
+        }
+    </div>
+</div>

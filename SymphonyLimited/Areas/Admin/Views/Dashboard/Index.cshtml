@@ -1,0 +1,206 @@
+@model SymphonyLimited.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid py-4">
+    <!-- Welcome Message -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="card-title">Welcome, Admin!</h2>
+                    <p class="card-text">Here's your today's overview.</p>
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fas fa-calendar-day text-primary fa-2x"></i>
+                        </div>
+                        <div>
+                            <small class="text-muted">Today is</small>
+                            <h5 class="mb-0" id="current-date"></h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card summary-card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-book text-primary"></i>
+                    <h5>Total Courses</h5>
+                    <h3>@Model.TotalCourses</h3>
+                    <p class="text-muted small">Active courses</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card summary-card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-users text-success"></i>
+                    <h5>Students</h5>
+                    <h3>@Model.NewAdmissionCount</h3>
+                    <p class="text-muted small">Recently registered</p>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card summary-card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-clipboard text-warning"></i>
+                    <h5>Entrance Exams</h5>
+                    <h3>@Model.UpcomingExams</h3>
+                    <p class="text-muted small">Upcoming/ongoing</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card summary-card h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-envelope text-info"></i>
+                    <h5>New Messages</h5>
+                    <h3>@Model.NewMessages</h3>
+                    <p class="text-muted small">Unread messages</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h5 class="card-title">Quick Actions</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a asp-area="Admin" asp-controller="AdminCourses" asp-action="Create"
+                            class="btn btn-primary quick-action-btn">
+                            <i class="fas fa-plus me-2"></i>Add New Course
+                        </a>
+                        <a asp-area="Admin" asp-controller="Admissions" asp-action="Index"
+                            class="btn btn-success quick-action-btn">
+                            <i class="fas fa-list me-2"></i>View All Admissions
+                        </a>
+                        <a asp-area="Admin" asp-controller="EntranceExam" asp-action="Manage"
+                            class="btn btn-warning quick-action-btn">
+                            <i class="fas fa-clipboard me-2"></i>Manage Entrance Exams
+                        </a>
+                        <a asp-area="Admin" asp-controller="About" asp-action="Manage"
+                            class="btn btn-info quick-action-btn">
+                            <i class="fas fa-users me-2"></i>Update About Page
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Students per Course</h5>
+                    <div class="chart-container">
+                        @* <canvas id="studentsChart"></canvas> *@
+                        <canvas id="studentsChart" data-labels='@Html.Raw(Json.Serialize(Model.CourseNames))'
+                            data-values='@Html.Raw(Json.Serialize(Model.StudentsPerCourse))'>
+                        </canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Monthly Admissions</h5>
+                    <div class="chart-container">
+                        <canvas id="admissionsChart" data-values='@Html.Raw(Json.Serialize(Model.MonthlyAdmissions))'>
+                        </canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Entries Section -->
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title d-flex justify-content-between align-items-center">
+                        Recent Messages
+                        <a asp-area="Admin" asp-controller="Contact" asp-action="List"
+                            class="btn btn-sm btn-outline-primary">View All</a>
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Subject</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var message in Model.RecentMessages)
+                                {
+                                    <tr>
+                                        <td>@message.Name</td>
+                                        <td>@message.Subject</td>
+                                        <td>@message.Date.ToString("MMM dd")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title d-flex justify-content-between align-items-center">
+                        New Admissions
+                        <a asp-area="Admin" asp-controller="AdminAdmission" asp-action="Manage"
+                            class="btn btn-sm btn-outline-success">View All</a>
+                    </h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>Email</th>
+                                    <th>Course</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var admission in Model.RecentAdmissions)
+                                {
+                                    <tr>
+                                        <td>@admission.StudentName</td>
+                                        <td>@admission.Email</td>
+                                        <td>@admission.Course</td>
+                                        <td>@admission.AdmissionDate.ToShortDateString()</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="~/admin/js/dashboard.js" asp-append-version="true"></script>
+}
