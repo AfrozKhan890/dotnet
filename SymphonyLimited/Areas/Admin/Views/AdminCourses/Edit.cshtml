@@ -1,0 +1,50 @@
+@model SymphonyLimited.Models.Course
+@{
+    var actionName = ViewContext.RouteData.Values["action"]?.ToString();
+    ViewData["Title"] = actionName == "Create" ? "Add Course" : "Edit Course";
+    Layout = "_Layout";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="@actionName" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="CourseName"></label>
+        <input asp-for="CourseName" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Duration"></label>
+        <input asp-for="Duration" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="TopicsCovered"></label>
+        <textarea asp-for="TopicsCovered" class="form-control"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="IsNew"></label>
+        <input asp-for="IsNew" type="checkbox" />
+    </div>
+
+    <div class="form-group">
+        <label>Course Image</label>
+        <input type="file" name="ImageFile" class="form-control" />
+        @if (!string.IsNullOrEmpty(Model?.ImageUrl))
+        {
+            <div class="mt-2">
+                <img src="@Url.Content(Model.ImageUrl)" width="200" />
+            </div>
+        }
+    </div>
+
+    <button type="submit" class="btn btn-success">Save</button>
+</form>

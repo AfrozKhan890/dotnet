@@ -1,0 +1,161 @@
+﻿@{
+    ViewData["Title"] = "Home - Symphony Limited";
+    var about = ViewBag.About;
+    var courses = ViewBag.Courses;
+    var newCourses = ViewBag.NewCourses;
+}
+
+
+<link rel="stylesheet" href="~/css/home.css">
+
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-content">
+        <h1>@(about?.InstitutionName ?? "Symphony Limited")</h1>
+        <p class="tagline">Empowering future through quality education & professional training</p>
+        <div class="cta-buttons">
+            <a href="/Courses" class="btn-primary">Explore Courses</a>
+            <a href="/Admission" class="btn-secondary">Apply Now</a>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <h2>About Our Institute</h2>
+    <p>@(about?.Description ?? "Symphony Limited is a trusted name in professional online education. We aim to provide quality courses, expert faculty and a path to success for every learner.")</p>
+</section>
+
+<section class="section">
+    <h2>Courses We Offer</h2>
+    <div class="courses">
+        @foreach (var course in courses)
+        {
+            <div class="course-card">
+                <img src="@Url.Content(course.ImageUrl ?? "~/images/courses/default.jpg")" alt="@course.CourseName" class="course-img" />
+                <h4>@course.CourseName</h4>
+                <p>@course.Description</p>
+                <p><strong>Duration:</strong> @course.Duration</p>
+            </div>
+        }
+    </div>
+</section>
+
+<section class="section">
+    <h2>New & Trending Courses</h2>
+    <div class="new-courses">
+        @foreach (var course in newCourses)
+        {
+            <div class="course-card">
+                <h4>@course.CourseName</h4>
+                <p>@course.Description</p>
+                <img src="@Url.Content(course.ImageUrl ?? "~/images/courses/default.jpg")" alt="@course.CourseName" class="course-img" />
+
+            </div>
+        }
+    </div>
+</section>
+<!-- Key Highlights -->
+<section class="section highlights">
+    <h2>Why Choose Us?</h2>
+    <div class="highlight-cards">
+        <div class="card">
+            <div class="icon">👨‍🏫</div>
+            <h3>Qualified Faculty</h3>
+            <p>Industry experts with years of teaching experience</p>
+        </div>
+        <div class="card">
+            <div class="icon">💼</div>
+            <h3>100% Placement Assistance</h3>
+            <p>Dedicated placement cell for career support</p>
+        </div>
+        <div class="card">
+            <div class="icon">⏱️</div>
+            <h3>Flexible Learning</h3>
+            <p>Online and offline modes available</p>
+        </div>
+        <div class="card">
+            <div class="icon">🏆</div>
+            <h3>Scholarship Programs</h3>
+            <p>Financial aid for deserving students</p>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="section testimonials">
+    <h2>What Our Students Say</h2>
+    <div class="testimonial-container">
+        <div class="testimonial">
+            <div class="student-info">
+                <img src="/images/student1.jpg" alt="Student" class="student-img">
+                <div>
+                    <h4>Ayesha</h4>
+                    <p>Computer Science</p>
+                </div>
+            </div>
+            <p class="quote">"The faculty here is exceptional. They helped me secure a job at a top IT company."</p>
+        </div>
+        <div class="testimonial">
+      <div class="student-info">
+                <img src="/images/student2.jpg" alt="Student" class="student-img">
+                <div>
+                    <h4>Rehman</h4>
+                    <p>Web Developer</p>
+                </div>
+            </div>
+            <p class="quote">"The faculty here is exceptional. They helped me secure a job at a top IT company."</p>
+        </div>
+    </div>
+    </div>
+</section>
+
+<!-- Achievements -->
+<section class="section achievements">
+    <div class="stats">
+        <div class="stat-item">
+            <h3>5000+</h3>
+            <p>Students Trained</p>
+        </div>
+        <div class="stat-item">
+            <h3>30+</h3>
+            <p>Courses</p>
+        </div>
+        <div class="stat-item">
+            <h3>98%</h3>
+            <p>Exam Success Rate</p>
+        </div>
+        <div class="stat-item">
+            <h3>10+</h3>
+            <p>Years in Education</p>
+        </div>
+    </div>
+</section>
+
+<!-- Events -->
+<section class="section events">
+    <h2>Upcoming Events</h2>
+    <div class="event-cards">
+        <div class="event-card">
+            <div class="event-date">
+                <span class="day">15</span>
+                <span class="month">August</span>
+            </div>
+            <div class="event-details">
+                <h3>Career Counseling Workshop</h3>
+                <p>10:00 AM - 12:00 PM</p>
+                <a href="#" class="event-btn">Register Now</a>
+            </div>
+    </div>
+</section>
+
+<!-- Newsletter -->
+<section class="section newsletter">
+    <h2>Stay Updated</h2>
+    <p>Get updates on latest courses and entrance exams!</p>
+    <form class="newsletter-form">
+        <input type="email" placeholder="Your email address" required>
+        <button type="submit">Subscribe</button>
+    </form>
+</section>
+
