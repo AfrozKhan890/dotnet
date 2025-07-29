@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SymphonyLimited.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateDashboardTables : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -120,30 +120,32 @@ namespace SymphonyLimited.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Students",
+                name: "Admissions",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    RollNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    CourseId = table.Column<int>(type: "int", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    StudentName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Phone = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Course = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AdmissionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Message = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CourseId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Students", x => x.Id);
+                    table.PrimaryKey("PK_Admissions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Students_Courses_CourseId",
+                        name: "FK_Admissions_Courses_CourseId",
                         column: x => x.CourseId,
                         principalTable: "Courses",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Students_CourseId",
-                table: "Students",
+                name: "IX_Admissions_CourseId",
+                table: "Admissions",
                 column: "CourseId");
         }
 
@@ -152,6 +154,9 @@ namespace SymphonyLimited.Migrations
         {
             migrationBuilder.DropTable(
                 name: "AboutInfos");
+
+            migrationBuilder.DropTable(
+                name: "Admissions");
 
             migrationBuilder.DropTable(
                 name: "CenterLocations");
@@ -164,9 +169,6 @@ namespace SymphonyLimited.Migrations
 
             migrationBuilder.DropTable(
                 name: "FAQs");
-
-            migrationBuilder.DropTable(
-                name: "Students");
 
             migrationBuilder.DropTable(
                 name: "Courses");

@@ -288,6 +288,24 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\courses\159f22f9-c922-4ebd-b981-396b671ad180.jpg'))</OriginalItemSpec>
     </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\courses\24529591-8028-448d-8783-c1bc1928c6bb.jpg'))">
+      <SourceType>Package</SourceType>
+      <SourceId>SymphonyLimited</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/SymphonyLimited</BasePath>
+      <RelativePath>images/courses/24529591-8028-448d-8783-c1bc1928c6bb.jpg</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>tkz67hmei8</Fingerprint>
+      <Integrity>Y9stmdupjJe4jLZitS7BrB5AbvxaDk2ErvvDE3Z8Eb4=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\courses\24529591-8028-448d-8783-c1bc1928c6bb.jpg'))</OriginalItemSpec>
+    </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\courses\2d9852f0-d01f-44a8-a6d7-c26de3e517e0.jpg'))">
       <SourceType>Package</SourceType>
       <SourceId>SymphonyLimited</SourceId>
@@ -449,6 +467,24 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\courses\5e59744b-eacc-472e-9378-4cc3ac1c185b.jpg'))</OriginalItemSpec>
+    </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\courses\5eb0c44b-a79d-4c55-8070-b4b8432abccf.jpg'))">
+      <SourceType>Package</SourceType>
+      <SourceId>SymphonyLimited</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/SymphonyLimited</BasePath>
+      <RelativePath>images/courses/5eb0c44b-a79d-4c55-8070-b4b8432abccf.jpg</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>dyngpymkju</Fingerprint>
+      <Integrity>u0GGFjuGIUOpXaZJC6VBtLwA/06RBsqNyYaPf6P6Dig=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\courses\5eb0c44b-a79d-4c55-8070-b4b8432abccf.jpg'))</OriginalItemSpec>
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\courses\602aa7c8-6df5-43f5-8111-e0f7979ab128.jpg'))">
       <SourceType>Package</SourceType>
@@ -647,6 +683,24 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\courses\AI3.jpg'))</OriginalItemSpec>
+    </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\courses\bf9353d9-b6a4-4ff5-b87d-3905f3729066.jpg'))">
+      <SourceType>Package</SourceType>
+      <SourceId>SymphonyLimited</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/SymphonyLimited</BasePath>
+      <RelativePath>images/courses/bf9353d9-b6a4-4ff5-b87d-3905f3729066.jpg</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>qbrkgdyb08</Fingerprint>
+      <Integrity>VgtQUTRGYBV7gkv5wKYUOd4uRe7PaLDgGkmJNoNwS1w=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\courses\bf9353d9-b6a4-4ff5-b87d-3905f3729066.jpg'))</OriginalItemSpec>
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\courses\c432fa53-c597-4674-ad0f-af1f41459f03.png'))">
       <SourceType>Package</SourceType>
@@ -918,6 +972,24 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\courses\EH2.jpg'))</OriginalItemSpec>
     </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\courses\f8dd59a6-fe17-4d2a-bf94-5717192278ef.jpg'))">
+      <SourceType>Package</SourceType>
+      <SourceId>SymphonyLimited</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/SymphonyLimited</BasePath>
+      <RelativePath>images/courses/f8dd59a6-fe17-4d2a-bf94-5717192278ef.jpg</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>lwkgysaovz</Fingerprint>
+      <Integrity>K0BrEUd9oeiNn0YIVUWd+PLtXFAwK1r3NFwFuxBM4XE=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\courses\f8dd59a6-fe17-4d2a-bf94-5717192278ef.jpg'))</OriginalItemSpec>
+    </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\courses\FD1.jpg'))">
       <SourceType>Package</SourceType>
       <SourceId>SymphonyLimited</SourceId>
@@ -1187,6 +1259,24 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\founder.jpg'))</OriginalItemSpec>
+    </StaticWebAsset>
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\institution\d2fe296f-1448-4418-bf3a-2848040fc6f1.jpg'))">
+      <SourceType>Package</SourceType>
+      <SourceId>SymphonyLimited</SourceId>
+      <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
+      <BasePath>_content/SymphonyLimited</BasePath>
+      <RelativePath>images/institution/d2fe296f-1448-4418-bf3a-2848040fc6f1.jpg</RelativePath>
+      <AssetKind>All</AssetKind>
+      <AssetMode>All</AssetMode>
+      <AssetRole>Primary</AssetRole>
+      <RelatedAsset></RelatedAsset>
+      <AssetTraitName></AssetTraitName>
+      <AssetTraitValue></AssetTraitValue>
+      <Fingerprint>9wtyod0blo</Fingerprint>
+      <Integrity>Jwikh6zK9miJ87kH6yLIyvMBgPq/r3/F9R/pYXC3BQs=</Integrity>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\institution\d2fe296f-1448-4418-bf3a-2848040fc6f1.jpg'))</OriginalItemSpec>
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\institution\f4034be8-ac37-4f41-a28e-f3954ab9dade.jpg'))">
       <SourceType>Package</SourceType>

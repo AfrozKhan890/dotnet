@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "yfvSTS5VI4Z7LWSAJknCbosX4u3WCa8m5ADIDVMTxuE=",
+  "Hash": "y9XYDDU+Z3V7hgwNrI3DOdMmdEyo4jesONq/f0oYOkI=",
   "Source": "SymphonyLimited",
   "BasePath": "_content/SymphonyLimited",
   "Mode": "Default",
@@ -1991,6 +1991,27 @@
       "OriginalItemSpec": "wwwroot\\images\\courses\\159f22f9-c922-4ebd-b981-396b671ad180.jpg"
     },
     {
+      "Identity": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\images\\courses\\24529591-8028-448d-8783-c1bc1928c6bb.jpg",
+      "SourceId": "SymphonyLimited",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\",
+      "BasePath": "_content/SymphonyLimited",
+      "RelativePath": "images/courses/24529591-8028-448d-8783-c1bc1928c6bb#[.{fingerprint}]?.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "tkz67hmei8",
+      "Integrity": "Y9stmdupjJe4jLZitS7BrB5AbvxaDk2ErvvDE3Z8Eb4=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\courses\\24529591-8028-448d-8783-c1bc1928c6bb.jpg"
+    },
+    {
       "Identity": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\images\\courses\\2d9852f0-d01f-44a8-a6d7-c26de3e517e0.jpg",
       "SourceId": "SymphonyLimited",
       "SourceType": "Discovered",
@@ -2178,6 +2199,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\images\\courses\\5e59744b-eacc-472e-9378-4cc3ac1c185b.jpg"
+    },
+    {
+      "Identity": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\images\\courses\\5eb0c44b-a79d-4c55-8070-b4b8432abccf.jpg",
+      "SourceId": "SymphonyLimited",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\",
+      "BasePath": "_content/SymphonyLimited",
+      "RelativePath": "images/courses/5eb0c44b-a79d-4c55-8070-b4b8432abccf#[.{fingerprint}]?.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "dyngpymkju",
+      "Integrity": "u0GGFjuGIUOpXaZJC6VBtLwA/06RBsqNyYaPf6P6Dig=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\courses\\5eb0c44b-a79d-4c55-8070-b4b8432abccf.jpg"
     },
     {
       "Identity": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\images\\courses\\602aa7c8-6df5-43f5-8111-e0f7979ab128.jpg",
@@ -2409,6 +2451,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\images\\courses\\AI3.jpg"
+    },
+    {
+      "Identity": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\images\\courses\\bf9353d9-b6a4-4ff5-b87d-3905f3729066.jpg",
+      "SourceId": "SymphonyLimited",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\",
+      "BasePath": "_content/SymphonyLimited",
+      "RelativePath": "images/courses/bf9353d9-b6a4-4ff5-b87d-3905f3729066#[.{fingerprint}]?.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "qbrkgdyb08",
+      "Integrity": "VgtQUTRGYBV7gkv5wKYUOd4uRe7PaLDgGkmJNoNwS1w=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\courses\\bf9353d9-b6a4-4ff5-b87d-3905f3729066.jpg"
     },
     {
       "Identity": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\images\\courses\\c432fa53-c597-4674-ad0f-af1f41459f03.png",
@@ -2726,6 +2789,27 @@
       "OriginalItemSpec": "wwwroot\\images\\courses\\EH2.jpg"
     },
     {
+      "Identity": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\images\\courses\\f8dd59a6-fe17-4d2a-bf94-5717192278ef.jpg",
+      "SourceId": "SymphonyLimited",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\",
+      "BasePath": "_content/SymphonyLimited",
+      "RelativePath": "images/courses/f8dd59a6-fe17-4d2a-bf94-5717192278ef#[.{fingerprint}]?.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "lwkgysaovz",
+      "Integrity": "K0BrEUd9oeiNn0YIVUWd+PLtXFAwK1r3NFwFuxBM4XE=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\courses\\f8dd59a6-fe17-4d2a-bf94-5717192278ef.jpg"
+    },
+    {
       "Identity": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\images\\courses\\FD1.jpg",
       "SourceId": "SymphonyLimited",
       "SourceType": "Discovered",
@@ -3039,6 +3123,27 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\images\\founder.jpg"
+    },
+    {
+      "Identity": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\images\\institution\\d2fe296f-1448-4418-bf3a-2848040fc6f1.jpg",
+      "SourceId": "SymphonyLimited",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\",
+      "BasePath": "_content/SymphonyLimited",
+      "RelativePath": "images/institution/d2fe296f-1448-4418-bf3a-2848040fc6f1#[.{fingerprint}]?.jpg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "Fingerprint": "9wtyod0blo",
+      "Integrity": "Jwikh6zK9miJ87kH6yLIyvMBgPq/r3/F9R/pYXC3BQs=",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\institution\\d2fe296f-1448-4418-bf3a-2848040fc6f1.jpg"
     },
     {
       "Identity": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\images\\institution\\f4034be8-ac37-4f41-a28e-f3954ab9dade.jpg",
@@ -8765,6 +8870,88 @@
       ]
     },
     {
+      "Route": "images/courses/24529591-8028-448d-8783-c1bc1928c6bb.jpg",
+      "AssetFile": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\images\\courses\\24529591-8028-448d-8783-c1bc1928c6bb.jpg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "66991"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Y9stmdupjJe4jLZitS7BrB5AbvxaDk2ErvvDE3Z8Eb4=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 24 Jul 2025 11:19:16 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-Y9stmdupjJe4jLZitS7BrB5AbvxaDk2ErvvDE3Z8Eb4="
+        }
+      ]
+    },
+    {
+      "Route": "images/courses/24529591-8028-448d-8783-c1bc1928c6bb.tkz67hmei8.jpg",
+      "AssetFile": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\images\\courses\\24529591-8028-448d-8783-c1bc1928c6bb.jpg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "66991"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Y9stmdupjJe4jLZitS7BrB5AbvxaDk2ErvvDE3Z8Eb4=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 24 Jul 2025 11:19:16 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "tkz67hmei8"
+        },
+        {
+          "Name": "label",
+          "Value": "images/courses/24529591-8028-448d-8783-c1bc1928c6bb.jpg"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-Y9stmdupjJe4jLZitS7BrB5AbvxaDk2ErvvDE3Z8Eb4="
+        }
+      ]
+    },
+    {
       "Route": "images/courses/2d9852f0-d01f-44a8-a6d7-c26de3e517e0.jpg",
       "AssetFile": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\images\\courses\\2d9852f0-d01f-44a8-a6d7-c26de3e517e0.jpg",
       "Selectors": [],
@@ -9499,6 +9686,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-/9RKUSPEpoWY0DvKo9/IHU4fyOCG+Ko+uW09Qb26Sr4="
+        }
+      ]
+    },
+    {
+      "Route": "images/courses/5eb0c44b-a79d-4c55-8070-b4b8432abccf.dyngpymkju.jpg",
+      "AssetFile": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\images\\courses\\5eb0c44b-a79d-4c55-8070-b4b8432abccf.jpg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "8110"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"u0GGFjuGIUOpXaZJC6VBtLwA/06RBsqNyYaPf6P6Dig=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 25 Jul 2025 15:05:08 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "dyngpymkju"
+        },
+        {
+          "Name": "label",
+          "Value": "images/courses/5eb0c44b-a79d-4c55-8070-b4b8432abccf.jpg"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-u0GGFjuGIUOpXaZJC6VBtLwA/06RBsqNyYaPf6P6Dig="
+        }
+      ]
+    },
+    {
+      "Route": "images/courses/5eb0c44b-a79d-4c55-8070-b4b8432abccf.jpg",
+      "AssetFile": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\images\\courses\\5eb0c44b-a79d-4c55-8070-b4b8432abccf.jpg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "8110"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"u0GGFjuGIUOpXaZJC6VBtLwA/06RBsqNyYaPf6P6Dig=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 25 Jul 2025 15:05:08 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-u0GGFjuGIUOpXaZJC6VBtLwA/06RBsqNyYaPf6P6Dig="
         }
       ]
     },
@@ -10401,6 +10670,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-jaRUjPvvaVhyTt/pgwoLU9JdMhWL9NUey8zK5v1VqlE="
+        }
+      ]
+    },
+    {
+      "Route": "images/courses/bf9353d9-b6a4-4ff5-b87d-3905f3729066.jpg",
+      "AssetFile": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\images\\courses\\bf9353d9-b6a4-4ff5-b87d-3905f3729066.jpg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "22835"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"VgtQUTRGYBV7gkv5wKYUOd4uRe7PaLDgGkmJNoNwS1w=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 25 Jul 2025 15:05:54 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-VgtQUTRGYBV7gkv5wKYUOd4uRe7PaLDgGkmJNoNwS1w="
+        }
+      ]
+    },
+    {
+      "Route": "images/courses/bf9353d9-b6a4-4ff5-b87d-3905f3729066.qbrkgdyb08.jpg",
+      "AssetFile": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\images\\courses\\bf9353d9-b6a4-4ff5-b87d-3905f3729066.jpg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "22835"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"VgtQUTRGYBV7gkv5wKYUOd4uRe7PaLDgGkmJNoNwS1w=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 25 Jul 2025 15:05:54 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "qbrkgdyb08"
+        },
+        {
+          "Name": "label",
+          "Value": "images/courses/bf9353d9-b6a4-4ff5-b87d-3905f3729066.jpg"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-VgtQUTRGYBV7gkv5wKYUOd4uRe7PaLDgGkmJNoNwS1w="
         }
       ]
     },
@@ -11635,6 +11986,88 @@
       ]
     },
     {
+      "Route": "images/courses/f8dd59a6-fe17-4d2a-bf94-5717192278ef.jpg",
+      "AssetFile": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\images\\courses\\f8dd59a6-fe17-4d2a-bf94-5717192278ef.jpg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "24122"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"K0BrEUd9oeiNn0YIVUWd+PLtXFAwK1r3NFwFuxBM4XE=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 25 Jul 2025 15:05:40 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-K0BrEUd9oeiNn0YIVUWd+PLtXFAwK1r3NFwFuxBM4XE="
+        }
+      ]
+    },
+    {
+      "Route": "images/courses/f8dd59a6-fe17-4d2a-bf94-5717192278ef.lwkgysaovz.jpg",
+      "AssetFile": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\images\\courses\\f8dd59a6-fe17-4d2a-bf94-5717192278ef.jpg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "24122"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"K0BrEUd9oeiNn0YIVUWd+PLtXFAwK1r3NFwFuxBM4XE=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 25 Jul 2025 15:05:40 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "lwkgysaovz"
+        },
+        {
+          "Name": "label",
+          "Value": "images/courses/f8dd59a6-fe17-4d2a-bf94-5717192278ef.jpg"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-K0BrEUd9oeiNn0YIVUWd+PLtXFAwK1r3NFwFuxBM4XE="
+        }
+      ]
+    },
+    {
       "Route": "images/courses/FD1.id7sjlatyl.jpg",
       "AssetFile": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\images\\courses\\FD1.jpg",
       "Selectors": [],
@@ -12861,6 +13294,88 @@
         {
           "Name": "integrity",
           "Value": "sha256-WrgBtowVLj+OhQryGBLDA7fcJpihD3CCmZWiLy9ZgmI="
+        }
+      ]
+    },
+    {
+      "Route": "images/institution/d2fe296f-1448-4418-bf3a-2848040fc6f1.9wtyod0blo.jpg",
+      "AssetFile": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\images\\institution\\d2fe296f-1448-4418-bf3a-2848040fc6f1.jpg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "11919"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Jwikh6zK9miJ87kH6yLIyvMBgPq/r3/F9R/pYXC3BQs=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 25 Jul 2025 14:59:25 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "9wtyod0blo"
+        },
+        {
+          "Name": "label",
+          "Value": "images/institution/d2fe296f-1448-4418-bf3a-2848040fc6f1.jpg"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-Jwikh6zK9miJ87kH6yLIyvMBgPq/r3/F9R/pYXC3BQs="
+        }
+      ]
+    },
+    {
+      "Route": "images/institution/d2fe296f-1448-4418-bf3a-2848040fc6f1.jpg",
+      "AssetFile": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\wwwroot\\images\\institution\\d2fe296f-1448-4418-bf3a-2848040fc6f1.jpg",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "11919"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "image/jpeg"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"Jwikh6zK9miJ87kH6yLIyvMBgPq/r3/F9R/pYXC3BQs=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Fri, 25 Jul 2025 14:59:25 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=3600, must-revalidate"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "integrity",
+          "Value": "sha256-Jwikh6zK9miJ87kH6yLIyvMBgPq/r3/F9R/pYXC3BQs="
         }
       ]
     },
@@ -31261,7 +31776,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 22 Jul 2025 11:14:44 GMT"
+          "Value": "Fri, 25 Jul 2025 15:22:47 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -31322,7 +31837,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 22 Jul 2025 11:14:44 GMT"
+          "Value": "Fri, 25 Jul 2025 15:22:47 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -31367,7 +31882,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 22 Jul 2025 11:14:44 GMT"
+          "Value": "Fri, 25 Jul 2025 15:22:47 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -31422,7 +31937,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 22 Jul 2025 11:14:44 GMT"
+          "Value": "Fri, 25 Jul 2025 15:22:47 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -31483,7 +31998,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 22 Jul 2025 11:14:44 GMT"
+          "Value": "Fri, 25 Jul 2025 15:22:47 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -31528,7 +32043,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 22 Jul 2025 11:14:44 GMT"
+          "Value": "Fri, 25 Jul 2025 15:22:47 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -31583,7 +32098,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 22 Jul 2025 11:14:44 GMT"
+          "Value": "Fri, 25 Jul 2025 15:22:47 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -31636,7 +32151,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 22 Jul 2025 11:14:44 GMT"
+          "Value": "Fri, 25 Jul 2025 15:22:47 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -31673,7 +32188,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 22 Jul 2025 11:14:44 GMT"
+          "Value": "Fri, 25 Jul 2025 15:22:47 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -31720,7 +32235,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 22 Jul 2025 11:14:44 GMT"
+          "Value": "Fri, 25 Jul 2025 15:22:47 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -31773,7 +32288,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 22 Jul 2025 11:14:44 GMT"
+          "Value": "Fri, 25 Jul 2025 15:22:47 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -31810,7 +32325,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Tue, 22 Jul 2025 11:14:44 GMT"
+          "Value": "Fri, 25 Jul 2025 15:22:47 GMT"
         },
         {
           "Name": "Cache-Control",

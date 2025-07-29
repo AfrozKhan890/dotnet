@@ -12,8 +12,8 @@ using SymphonyLimited.Data;
 namespace SymphonyLimited.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250719120639_CreateDashboardTables")]
-    partial class CreateDashboardTables
+    [Migration("20250725145616_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -72,6 +72,46 @@ namespace SymphonyLimited.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("AboutInfos");
+                });
+
+            modelBuilder.Entity("SymphonyLimited.Models.Admission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("AdmissionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Course")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StudentName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.ToTable("Admissions");
                 });
 
             modelBuilder.Entity("SymphonyLimited.Models.CenterLocation", b =>
@@ -239,49 +279,16 @@ namespace SymphonyLimited.Migrations
                     b.ToTable("FAQs");
                 });
 
-            modelBuilder.Entity("SymphonyLimited.Models.Student", b =>
+            modelBuilder.Entity("SymphonyLimited.Models.Admission", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RollNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CourseId");
-
-                    b.ToTable("Students");
-                });
-
-            modelBuilder.Entity("SymphonyLimited.Models.Student", b =>
-                {
-                    b.HasOne("SymphonyLimited.Models.Course", "Course")
-                        .WithMany("Students")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
+                    b.HasOne("SymphonyLimited.Models.Course", null)
+                        .WithMany("Admissions")
+                        .HasForeignKey("CourseId");
                 });
 
             modelBuilder.Entity("SymphonyLimited.Models.Course", b =>
                 {
-                    b.Navigation("Students");
+                    b.Navigation("Admissions");
                 });
 #pragma warning restore 612, 618
         }
