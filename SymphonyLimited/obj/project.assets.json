@@ -4715,11 +4715,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\SymphonyLimited.csproj",
+      "projectUniqueName": "C:\\Users\\user\\Desktop\\Aptech 3rd Semester\\Symphony_Limited\\SymphonyLimited\\SymphonyLimited.csproj",
       "projectName": "SymphonyLimited",
-      "projectPath": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\SymphonyLimited.csproj",
+      "projectPath": "C:\\Users\\user\\Desktop\\Aptech 3rd Semester\\Symphony_Limited\\SymphonyLimited\\SymphonyLimited.csproj",
       "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\user\\Desktop\\Symphony_Limited\\SymphonyLimited\\obj\\",
+      "outputPath": "C:\\Users\\user\\Desktop\\Aptech 3rd Semester\\Symphony_Limited\\SymphonyLimited\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\user\\AppData\\Roaming\\NuGet\\NuGet.Config"
