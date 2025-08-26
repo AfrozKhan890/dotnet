@@ -1,0 +1,22 @@
+@model SymphonyLimited.Models.ContactForm
+@{
+    ViewData["Title"] = "Message Details";
+    Layout = "_Layout";
+}
+
+<h2>Message Details</h2>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <strong>@Model.FullName</strong> — @Model.SubmissionDate.ToString("dd-MMM-yyyy hh:mm tt")
+    </div>
+    <div class="card-body">
+        <p><strong>Email:</strong> @Model.Email</p>
+        <p><strong>Subject:</strong> @Model.Subject</p>
+        <hr />
+        <p><strong>Message:</strong></p>
+        <p>@Model.Message</p>
+    </div>
+</div>
+
+<a asp-action="List" class="btn btn-secondary mt-3">Back to List</a>

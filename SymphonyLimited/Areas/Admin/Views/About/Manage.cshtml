@@ -1,0 +1,73 @@
+@model SymphonyLimited.Models.AboutInfo
+@{
+    ViewData["Title"] = "Manage About Page";
+    Layout = "_Layout"; 
+}
+
+<h2>Manage About Page</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<form asp-action="Manage" enctype="multipart/form-data" method="post">
+    <div class="form-group">
+        <label asp-for="InstitutionName"></label>
+        <input asp-for="InstitutionName" class="form-control" />
+        <span asp-validation-for="InstitutionName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Vision"></label>
+        <textarea asp-for="Vision" class="form-control" rows="3"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Mission"></label>
+        <textarea asp-for="Mission" class="form-control" rows="3"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="CoreValues"></label>
+        <textarea asp-for="CoreValues" class="form-control" rows="3"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="FounderMessage"></label>
+        <textarea asp-for="FounderMessage" class="form-control" rows="3"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="FounderName"></label>
+        <input asp-for="FounderName" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="History"></label>
+        <textarea asp-for="History" class="form-control" rows="3"></textarea>
+    </div>
+
+
+<div class="form-group">
+    <label asp-for="Description"></label>
+    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+</div>
+
+    <div class="form-group">
+        <label>Institution Image</label><br />
+        <input type="file" name="InstitutionImage" class="form-control-file" />
+        @if (!string.IsNullOrEmpty(Model.InstitutionImagePath))
+        {
+            <div class="mt-2">
+                <img src="@Url.Content(Model.InstitutionImagePath)" width="200" />
+            </div>
+        }
+    </div>
+
+    <button type="submit" class="btn btn-success mt-3">Save Changes</button>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,51 @@
+@model IEnumerable<SymphonyLimited.Models.CenterLocation>
+@{
+    ViewData["Title"] = "Manage Center Locations";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid py-3">
+    <h2 class="mb-2">Add Center Location</h2>
+
+    <div class="mb-3">
+        <a asp-action="Create" class="btn btn-success btn-sm px-2"> 
+            Add Center Location <i class="fas fa-plus me-1"></i>
+        </a>
+    </div>
+
+    <!-- Responsive Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped table-hover m-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Center Name</th>
+                    <th>Address</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Timings</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var center in Model)
+                {
+                    <tr>
+                        <td data-label="Center Name">@center.CenterName</td>
+                        <td data-label="Address">@center.Address</td>
+                        <td data-label="Phone">@center.Phone</td>
+                        <td data-label="Email">@center.Email</td>
+                        <td data-label="Timings">@center.Timings</td>
+                        <td>
+                            <div class="d-flex flex-wrap">
+                                <a asp-action="Edit" asp-route-id="@center.Id" class="btn btn-sm btn-primary me-1 mb-1">Edit</a>
+                                <form asp-action="Delete" asp-route-id="@center.Id" method="post" style="display:inline;" onsubmit="return confirm('Are you sure?');">
+                                    <button type="submit" class="btn btn-sm btn-danger mb-1">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
