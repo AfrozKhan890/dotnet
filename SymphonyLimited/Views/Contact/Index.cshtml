@@ -1,0 +1,65 @@
+@model SymphonyLimited.ViewModels.ContactPageViewModel
+
+<div class="contact-container">
+    <h1>Contact Us</h1>
+    <div class="contact-intro">Reach out to us using the form below.</div>
+    <link rel="stylesheet" href="~/css/contact.css" />
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+
+    <div class="contact-layout">
+        <div class="contact-form-container">
+            <form asp-action="Index" method="post">
+                <div asp-validation-summary="All" class="text-danger"></div>
+
+                <div class="form-group">
+                    <label asp-for="ContactForm.FullName"></label>
+                    <input asp-for="ContactForm.FullName" class="form-control" />
+                    <span asp-validation-for="ContactForm.FullName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ContactForm.Email"></label>
+                    <input asp-for="ContactForm.Email" class="form-control" />
+                    <span asp-validation-for="ContactForm.Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ContactForm.Subject"></label>
+                    <input asp-for="ContactForm.Subject" class="form-control" />
+                    <span asp-validation-for="ContactForm.Subject" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ContactForm.Message"></label>
+                    <textarea asp-for="ContactForm.Message" class="form-control"></textarea>
+                    <span asp-validation-for="ContactForm.Message" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+
+        <div class="map-container">
+            <h2><i class="fas fa-map-marker-alt"></i> Center Locations</h2>
+            <div class="map-wrapper">
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3620.369949160071!2d67.01427477572803!3d24.85121134562687!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3eb33e0bd8a0dd2f%3A0x7e44b5df9175804b!2sSaima%20Trade%20Tower!5e0!3m2!1sen!2s!4v1753009107815!5m2!1sen!2s"
+                    allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+        </div>
+
+        @foreach (var center in Model.Centers)
+        {
+            <div class="center-card">
+                <h3>@center.CenterName</h3>
+                <p><i class="fas fa-map"></i> @center.Address</p>
+                <p><i class="fas fa-phone"></i> @center.Phone</p>
+                <p><i class="fas fa-envelope"></i> @center.Email</p>
+                <p><i class="fas fa-clock"></i> @center.Timings</p>
+            </div>
+        }
+    </div>
+</div>

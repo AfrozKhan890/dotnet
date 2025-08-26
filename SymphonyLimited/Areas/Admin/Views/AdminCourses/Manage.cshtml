@@ -1,0 +1,44 @@
+@model List<SymphonyLimited.Models.Course>
+@{
+    ViewData["Title"] = "Manage Courses";
+    Layout = "_Layout";
+}
+
+<h2>Manage Courses</h2>
+
+<a class="btn btn-success mb-3" asp-action="Create">Add New Course <i class="fas fa-plus me-1"></i></a>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Duration</th>
+            <th>Is New</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var course in Model)
+        {
+            <tr>
+                <td><img src="@Url.Content(course.ImageUrl)" width="100" /></td>
+                <td>@course.CourseName</td>
+                <td>@course.Duration</td>
+                <td>@(course.IsNew ? "Yes" : "No")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@course.Id" class="btn btn-primary btn-sm">Edit</a>
+
+                    <form asp-action="Delete" asp-route-id="@course.Id" method="post" style="display:inline;" onsubmit="return confirm('Are you sure?');">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
