@@ -1,13 +1,13 @@
-@model IEnumerable<SIOMS.Models.PurchaseOrder>
+@model IEnumerable<SIOMS.Models.SalesOrder>
 @{
-    ViewData["Title"] = "Purchase Orders";
-    ViewData["Subtitle"] = "Manage supplier purchase orders";
+    ViewData["Title"] = "Sales Orders";
+    ViewData["Subtitle"] = "Manage customer sales orders";
     Layout = "_Layout";
 }
 
 @section HeaderButtons {
-    <a href="@Url.Action("CreatePurchaseOrder", "Order", new { area = "Admin" })" class="btn btn-primary">
-        <i class="fas fa-plus me-2"></i> New Purchase Order
+    <a href="@Url.Action("CreateSalesOrder", "Order", new { area = "Admin" })" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i> New Sales Order
     </a>
 }
 
@@ -16,8 +16,8 @@
     <div class="row mb-4">
         <div class="col-12">
             <div class="page-header">
-                <h2>Purchase Orders</h2>
-                <p class="text-muted">Manage supplier purchase orders</p>
+                <h2>Sales Orders</h2>
+                <p class="text-muted">Manage customer sales orders</p>
             </div>
         </div>
     </div>
@@ -29,13 +29,13 @@
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col-md-8">
-                            <form method="get" action="@Url.Action("PurchaseOrders", "Order", new { area = "Admin" })" class="row g-3">
+                            <form method="get" action="@Url.Action("SalesOrders", "Order", new { area = "Admin" })" class="row g-3">
                                 <div class="col-auto">
                                     <select name="status" class="form-select">
                                         <option value="">All Status</option>
                                         <option value="Pending" selected="@(ViewBag.StatusFilter == "Pending")">Pending</option>
                                         <option value="Processing" selected="@(ViewBag.StatusFilter == "Processing")">Processing</option>
-                                        <option value="Delivered" selected="@(ViewBag.StatusFilter == "Delivered")">Delivered</option>
+                                        <option value="Completed" selected="@(ViewBag.StatusFilter == "Completed")">Completed</option>
                                         <option value="Cancelled" selected="@(ViewBag.StatusFilter == "Cancelled")">Cancelled</option>
                                     </select>
                                 </div>
@@ -53,7 +53,7 @@
                                     </button>
                                     @if (!string.IsNullOrEmpty(ViewBag.StatusFilter) || !string.IsNullOrEmpty(ViewBag.FromDate) || !string.IsNullOrEmpty(ViewBag.ToDate))
                                     {
-                                        <a href="@Url.Action("PurchaseOrders", "Order", new { area = "Admin" })" class="btn btn-secondary ms-2">
+                                        <a href="@Url.Action("SalesOrders", "Order", new { area = "Admin" })" class="btn btn-secondary ms-2">
                                             <i class="fas fa-redo"></i> Reset
                                         </a>
                                     }
@@ -61,8 +61,8 @@
                             </form>
                         </div>
                         <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                            <a href="@Url.Action("CreatePurchaseOrder", "Order", new { area = "Admin" })" class="btn btn-success">
-                                <i class="fas fa-plus"></i> New Purchase Order
+                            <a href="@Url.Action("CreateSalesOrder", "Order", new { area = "Admin" })" class="btn btn-success">
+                                <i class="fas fa-plus"></i> New Sales Order
                             </a>
                         </div>
                     </div>
@@ -71,7 +71,7 @@
         </div>
     </div>
 
-    <!-- Purchase Orders Table -->
+    <!-- Sales Orders Table -->
     <div class="row">
         <div class="col-12">
             <div class="card animate-slide-up">
@@ -97,7 +97,7 @@
                             <thead>
                                 <tr>
                                     <th>Order #</th>
-                                    <th>Supplier</th>
+                                    <th>Customer</th>
                                     <th>Order Date</th>
                                     <th>Items</th>
                                     <th>Total Amount</th>
@@ -117,38 +117,30 @@
                                                 <small class="text-muted">ID: @order.Id</small>
                                             </td>
                                             <td>
-                                                @if (order.Supplier != null)
+                                                @if (order.Customer != null)
                                                 {
-                                                    <strong>@order.Supplier.Name</strong>
-                                                    @if (!string.IsNullOrEmpty(order.Supplier.ContactPerson))
+                                                    <strong>@order.Customer.Name</strong>
+                                                    @if (!string.IsNullOrEmpty(order.Customer.Phone))
                                                     {
                                                         <br>
-                                                        <small class="text-muted">@order.Supplier.ContactPerson</small>
+                                                        <small class="text-muted">@order.Customer.Phone</small>
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    <span class="text-muted">Supplier not found</span>
+                                                    <span class="text-muted">Customer not found</span>
                                                 }
                                             </td>
                                             <td>
                                                 @order.OrderDate.ToString("MMM dd, yyyy")
                                                 <br>
                                                 <small class="text-muted">@order.OrderDate.ToString("hh:mm tt")</small>
-                                                @if (order.ExpectedDeliveryDate.HasValue)
-                                                {
-                                                    <br>
-                                                    <small class="text-info">
-                                                        <i class="fas fa-truck me-1"></i>
-                                                        Expected: @order.ExpectedDeliveryDate.Value.ToString("MMM dd")
-                                                    </small>
-                                                }
                                             </td>
                                             <td>
                                                 <span class="badge bg-primary">@order.Items?.Count()</span>
                                             </td>
                                             <td>
-                                                <strong class="text-success">@order.TotalAmount.ToString("C")</strong>
+                                                <strong class="text-success">@order.GrandTotal.ToString("C")</strong>
                                             </td>
                                             <td>
                                                 @switch (order.Status)
@@ -159,8 +151,8 @@
                                                     case "Processing":
                                                         <span class="badge bg-info">Processing</span>
                                                         break;
-                                                    case "Delivered":
-                                                        <span class="badge bg-success">Delivered</span>
+                                                    case "Completed":
+                                                        <span class="badge bg-success">Completed</span>
                                                         break;
                                                     case "Cancelled":
                                                         <span class="badge bg-danger">Cancelled</span>
@@ -172,13 +164,13 @@
                                             </td>
                                             <td>
                                                 <div class="btn-group btn-group-sm">
-                                                    <a href="@Url.Action("PurchaseOrderDetails", "Order", new { area = "Admin", id = order.Id })" 
+                                                    <a href="@Url.Action("SalesOrderDetails", "Order", new { area = "Admin", id = order.Id })" 
                                                        class="btn btn-outline-info" title="View Details">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
-                                                    @if (order.Status != "Delivered" && order.Status != "Cancelled")
+                                                    @if (order.Status != "Completed" && order.Status != "Cancelled")
                                                     {
-                                                        <a href="@Url.Action("EditPurchaseOrder", "Order", new { area = "Admin", id = order.Id })" 
+                                                        <a href="@Url.Action("EditSalesOrder", "Order", new { area = "Admin", id = order.Id })" 
                                                            class="btn btn-outline-primary" title="Edit">
                                                             <i class="fas fa-edit"></i>
                                                         </a>
@@ -191,25 +183,25 @@
                                                                 @if (order.Status != "Processing")
                                                                 {
                                                                     <li>
-                                                                        <a class="dropdown-item status-update" 
+                                                                        <a class="dropdown-item sales-status-update" 
                                                                            data-id="@order.Id" data-status="Processing">
                                                                             <i class="fas fa-spinner me-2"></i>Mark as Processing
                                                                         </a>
                                                                     </li>
                                                                 }
-                                                                @if (order.Status != "Delivered")
+                                                                @if (order.Status != "Completed")
                                                                 {
                                                                     <li>
-                                                                        <a class="dropdown-item status-update" 
-                                                                           data-id="@order.Id" data-status="Delivered">
-                                                                            <i class="fas fa-check me-2"></i>Mark as Delivered
+                                                                        <a class="dropdown-item sales-status-update" 
+                                                                           data-id="@order.Id" data-status="Completed">
+                                                                            <i class="fas fa-check me-2"></i>Mark as Completed
                                                                         </a>
                                                                     </li>
                                                                 }
                                                                 @if (order.Status != "Cancelled")
                                                                 {
                                                                     <li>
-                                                                        <a class="dropdown-item status-update text-danger" 
+                                                                        <a class="dropdown-item sales-status-update text-danger" 
                                                                            data-id="@order.Id" data-status="Cancelled">
                                                                             <i class="fas fa-times me-2"></i>Cancel Order
                                                                         </a>
@@ -227,10 +219,10 @@
                                 {
                                     <tr>
                                         <td colspan="7" class="text-center py-5">
-                                            <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
-                                            <h5 class="text-muted">No purchase orders found</h5>
-                                            <p class="text-muted mb-4">Get started by creating your first purchase order.</p>
-                                            <a href="@Url.Action("CreatePurchaseOrder", "Order", new { area = "Admin" })" class="btn btn-primary">
+                                            <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
+                                            <h5 class="text-muted">No sales orders found</h5>
+                                            <p class="text-muted mb-4">Get started by creating your first sales order.</p>
+                                            <a href="@Url.Action("CreateSalesOrder", "Order", new { area = "Admin" })" class="btn btn-primary">
                                                 <i class="fas fa-plus me-2"></i> Create First Order
                                             </a>
                                         </td>
@@ -248,21 +240,21 @@
 @section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Status update for purchase orders
-            document.querySelectorAll('.status-update').forEach(link => {
+            // Status update for sales orders
+            document.querySelectorAll('.sales-status-update').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
                     const orderId = this.dataset.id;
                     const status = this.dataset.status;
                     
                     if (confirm(`Are you sure you want to mark this order as ${status}?`)) {
-                        fetch('@Url.Action("UpdatePurchaseOrderStatus", "Order", new { area = "Admin" })/' + orderId, {
+                        fetch('@Url.Action("UpdateSalesOrderStatus", "Order", new { area = "Admin" })/' + orderId, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                                 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
                             },
-                            body: JSON.stringify({ id: orderId, status: status })
+                            body: JSON.stringify({ status: status })
                         })
                         .then(response => response.json())
                         .then(data => {

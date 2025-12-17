@@ -3,13 +3,14 @@ using Microsoft.EntityFrameworkCore;
 using SIOMS.Data;
 using SIOMS.Models;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace SIOMS.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class OrderController : AdminBaseController
+    public class OrderController : Controller
     {
         private readonly ApplicationDbContext _context;
 
@@ -20,7 +21,7 @@ namespace SIOMS.Areas.Admin.Controllers
 
         // ========== PURCHASE ORDERS ==========
 
-        // GET: PurchaseOrders/Index
+        // GET: Admin/Order/PurchaseOrders
         public async Task<IActionResult> PurchaseOrders(string status, DateTime? fromDate, DateTime? toDate)
         {
             var orders = _context.PurchaseOrders
@@ -50,7 +51,7 @@ namespace SIOMS.Areas.Admin.Controllers
             return View(await orders.OrderByDescending(po => po.OrderDate).ToListAsync());
         }
 
-        // GET: PurchaseOrders/Details/5
+        // GET: Admin/Order/PurchaseOrderDetails/5
         public async Task<IActionResult> PurchaseOrderDetails(int? id)
         {
             if (id == null)
@@ -68,7 +69,7 @@ namespace SIOMS.Areas.Admin.Controllers
             return View(order);
         }
 
-        // GET: PurchaseOrders/Create
+        // GET: Admin/Order/CreatePurchaseOrder
         public IActionResult CreatePurchaseOrder()
         {
             ViewBag.Suppliers = _context.Suppliers
@@ -84,13 +85,14 @@ namespace SIOMS.Areas.Admin.Controllers
             var order = new PurchaseOrder
             {
                 OrderDate = DateTime.Now,
-                ExpectedDeliveryDate = DateTime.Now.AddDays(7)
+                ExpectedDeliveryDate = DateTime.Now.AddDays(7),
+                OrderNumber = "PO-" + DateTime.Now.ToString("yyyyMMddHHmmss")
             };
 
             return View(order);
         }
 
-        // POST: PurchaseOrders/Create
+        // POST: Admin/Order/CreatePurchaseOrder
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreatePurchaseOrder(PurchaseOrder order, List<PurchaseOrderItem> items)
@@ -130,9 +132,9 @@ namespace SIOMS.Areas.Admin.Controllers
             return View(order);
         }
 
-        // POST: PurchaseOrders/UpdateStatus/5
+        // POST: Admin/Order/UpdatePurchaseOrderStatus/5
         [HttpPost]
-        public async Task<IActionResult> UpdatePurchaseOrderStatus(int id, string status)
+        public async Task<IActionResult> UpdatePurchaseOrderStatus(int id, [FromBody] StatusUpdateModel model)
         {
             var order = await _context.PurchaseOrders
                 .Include(po => po.Items)
@@ -141,11 +143,11 @@ namespace SIOMS.Areas.Admin.Controllers
             if (order == null)
                 return Json(new { success = false, message = "Order not found" });
 
-            order.Status = status;
+            order.Status = model.Status;
             order.UpdatedAt = DateTime.Now;
 
             // If delivered, update stock
-            if (status == "Delivered")
+            if (model.Status == "Delivered")
             {
                 foreach (var item in order.Items)
                 {
@@ -172,10 +174,10 @@ namespace SIOMS.Areas.Admin.Controllers
             }
 
             await _context.SaveChangesAsync();
-            return Json(new { success = true, message = $"Order status updated to {status}" });
+            return Json(new { success = true, message = $"Order status updated to {model.Status}" });
         }
 
-        // GET: PurchaseOrders/Edit/5
+        // GET: Admin/Order/EditPurchaseOrder/5
         public async Task<IActionResult> EditPurchaseOrder(int? id)
         {
             if (id == null)
@@ -200,7 +202,7 @@ namespace SIOMS.Areas.Admin.Controllers
             return View(order);
         }
 
-        // POST: PurchaseOrders/Edit/5
+        // POST: Admin/Order/EditPurchaseOrder/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditPurchaseOrder(int id, PurchaseOrder order, List<PurchaseOrderItem> items)
@@ -208,7 +210,7 @@ namespace SIOMS.Areas.Admin.Controllers
             if (id != order.Id)
                 return NotFound();
 
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && items != null && items.Any())
             {
                 try
                 {
@@ -254,7 +256,7 @@ namespace SIOMS.Areas.Admin.Controllers
             return View(order);
         }
 
-        // GET: PurchaseOrders/Delete/5
+        // GET: Admin/Order/DeletePurchaseOrder/5
         public async Task<IActionResult> DeletePurchaseOrder(int? id)
         {
             if (id == null)
@@ -271,7 +273,7 @@ namespace SIOMS.Areas.Admin.Controllers
             return View(order);
         }
 
-        // POST: PurchaseOrders/Delete/5
+        // POST: Admin/Order/DeletePurchaseOrder/5
         [HttpPost, ActionName("DeletePurchaseOrder")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeletePurchaseOrderConfirmed(int id)
@@ -300,7 +302,7 @@ namespace SIOMS.Areas.Admin.Controllers
 
         // ========== SALES ORDERS ==========
 
-        // GET: SalesOrders/Index
+        // GET: Admin/Order/SalesOrders
         public async Task<IActionResult> SalesOrders(string status, DateTime? fromDate, DateTime? toDate)
         {
             var orders = _context.SalesOrders
@@ -330,7 +332,7 @@ namespace SIOMS.Areas.Admin.Controllers
             return View(await orders.OrderByDescending(so => so.OrderDate).ToListAsync());
         }
 
-        // GET: SalesOrders/Details/5
+        // GET: Admin/Order/SalesOrderDetails/5
         public async Task<IActionResult> SalesOrderDetails(int? id)
         {
             if (id == null)
@@ -348,7 +350,7 @@ namespace SIOMS.Areas.Admin.Controllers
             return View(order);
         }
 
-        // GET: SalesOrders/Create
+        // GET: Admin/Order/CreateSalesOrder
         public IActionResult CreateSalesOrder()
         {
             ViewBag.Customers = _context.Customers
@@ -365,13 +367,14 @@ namespace SIOMS.Areas.Admin.Controllers
             {
                 OrderDate = DateTime.Now,
                 DiscountPercentage = 0,
-                TaxAmount = 0
+                TaxAmount = 0,
+                OrderNumber = "SO-" + DateTime.Now.ToString("yyyyMMddHHmmss")
             };
 
             return View(order);
         }
 
-        // POST: SalesOrders/Create
+        // POST: Admin/Order/CreateSalesOrder
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateSalesOrder(SalesOrder order, List<SalesOrderItem> items)
@@ -452,9 +455,9 @@ namespace SIOMS.Areas.Admin.Controllers
             return View(order);
         }
 
-        // POST: SalesOrders/UpdateStatus/5
+        // POST: Admin/Order/UpdateSalesOrderStatus/5
         [HttpPost]
-        public async Task<IActionResult> UpdateSalesOrderStatus(int id, string status)
+        public async Task<IActionResult> UpdateSalesOrderStatus(int id, [FromBody] StatusUpdateModel model)
         {
             var order = await _context.SalesOrders
                 .Include(so => so.Items)
@@ -464,7 +467,7 @@ namespace SIOMS.Areas.Admin.Controllers
                 return Json(new { success = false, message = "Order not found" });
 
             // If cancelling completed order, restore stock
-            if (order.Status == "Completed" && status == "Cancelled")
+            if (order.Status == "Completed" && model.Status == "Cancelled")
             {
                 foreach (var item in order.Items)
                 {
@@ -488,20 +491,15 @@ namespace SIOMS.Areas.Admin.Controllers
                     }
                 }
             }
-            // If completing pending order, reduce stock (already done in creation)
-            else if (order.Status == "Pending" && status == "Completed")
-            {
-                // Stock already reduced at creation
-            }
 
-            order.Status = status;
+            order.Status = model.Status;
             order.UpdatedAt = DateTime.Now;
             await _context.SaveChangesAsync();
 
-            return Json(new { success = true, message = $"Order status updated to {status}" });
+            return Json(new { success = true, message = $"Order status updated to {model.Status}" });
         }
 
-        // GET: SalesOrders/Edit/5
+        // GET: Admin/Order/EditSalesOrder/5
         public async Task<IActionResult> EditSalesOrder(int? id)
         {
             if (id == null)
@@ -532,7 +530,7 @@ namespace SIOMS.Areas.Admin.Controllers
             return View(order);
         }
 
-        // POST: SalesOrders/Edit/5
+        // POST: Admin/Order/EditSalesOrder/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditSalesOrder(int id, SalesOrder order, List<SalesOrderItem> items)
@@ -553,7 +551,7 @@ namespace SIOMS.Areas.Admin.Controllers
                 return RedirectToAction(nameof(SalesOrders));
             }
 
-            if (ModelState.IsValid)
+            if (ModelState.IsValid && items != null && items.Any())
             {
                 try
                 {
@@ -679,7 +677,7 @@ namespace SIOMS.Areas.Admin.Controllers
             await _context.SaveChangesAsync();
         }
 
-        // GET: SalesOrders/Delete/5
+        // GET: Admin/Order/DeleteSalesOrder/5
         public async Task<IActionResult> DeleteSalesOrder(int? id)
         {
             if (id == null)
@@ -696,7 +694,7 @@ namespace SIOMS.Areas.Admin.Controllers
             return View(order);
         }
 
-        // POST: SalesOrders/Delete/5
+        // POST: Admin/Order/DeleteSalesOrder/5
         [HttpPost, ActionName("DeleteSalesOrder")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteSalesOrderConfirmed(int id)
@@ -747,6 +745,12 @@ namespace SIOMS.Areas.Admin.Controllers
         private bool SalesOrderExists(int id)
         {
             return _context.SalesOrders.Any(e => e.Id == id);
+        }
+
+        // Helper Model for Status Update
+        public class StatusUpdateModel
+        {
+            public string Status { get; set; }
         }
     }
 }

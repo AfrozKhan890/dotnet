@@ -1,0 +1,440 @@
+@model SIOMS.Models.SalesOrder
+@{
+    ViewData["Title"] = "Edit Sales Order";
+    ViewData["Subtitle"] = "Update sales order information";
+    Layout = "_Layout";
+}
+
+@section HeaderButtons {
+    <a href="@Url.Action("SalesOrderDetails", "Order", new { area = "Admin", id = Model.Id })" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i> Back to Details
+    </a>
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Edit Sales Order</h4>
+                </div>
+                <div class="card-body">
+                    @if (Model.Status == "Completed" || Model.Status == "Cancelled")
+                    {
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            This order is <strong>@Model.Status</strong> and cannot be edited.
+                        </div>
+                    }
+                    else
+                    {
+                        <form id="editSalesOrderForm" asp-action="EditSalesOrder" asp-area="Admin" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" asp-for="Id" />
+                            <input type="hidden" asp-for="CreatedAt" />
+                            <input type="hidden" asp-for="OrderNumber" />
+                            
+                            <div class="row">
+                                <!-- Left Column - Order Details -->
+                                <div class="col-lg-4">
+                                    <div class="card mb-4">
+                                        <div class="card-header">
+                                            <h6 class="card-title mb-0">Order Details</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label asp-for="CustomerId" class="form-label">Customer *</label>
+                                                <select asp-for="CustomerId" class="form-select" required>
+                                                    <option value="">Select Customer</option>
+                                                    @foreach (var customer in ViewBag.Customers)
+                                                    {
+                                                        <option value="@customer.Id">@customer.Name</option>
+                                                    }
+                                                </select>
+                                                <span asp-validation-for="CustomerId" class="text-danger small"></span>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label asp-for="OrderDate" class="form-label">Order Date *</label>
+                                                <input asp-for="OrderDate" type="date" class="form-control" required>
+                                                <span asp-validation-for="OrderDate" class="text-danger small"></span>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label asp-for="Status" class="form-label">Status</label>
+                                                <select asp-for="Status" class="form-select">
+                                                    <option value="Pending">Pending</option>
+                                                    <option value="Processing">Processing</option>
+                                                    <option value="Completed">Completed</option>
+                                                    <option value="Cancelled">Cancelled</option>
+                                                </select>
+                                                <span asp-validation-for="Status" class="text-danger small"></span>
+                                            </div>
+                                            
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label asp-for="DiscountPercentage" class="form-label">Discount %</label>
+                                                    <input asp-for="DiscountPercentage" type="number" class="form-control" min="0" max="100" step="0.01">
+                                                    <span asp-validation-for="DiscountPercentage" class="text-danger small"></span>
+                                                </div>
+                                                
+                                                <div class="col-md-6 mb-3">
+                                                    <label asp-for="TaxAmount" class="form-label">Tax Amount ($)</label>
+                                                    <input asp-for="TaxAmount" type="number" class="form-control" min="0" step="0.01">
+                                                    <span asp-validation-for="TaxAmount" class="text-danger small"></span>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label asp-for="Notes" class="form-label">Notes</label>
+                                                <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+                                                <span asp-validation-for="Notes" class="text-danger small"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Summary Card -->
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h6 class="card-title mb-0">Order Summary</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Total Items:</span>
+                                                <span id="totalItems" class="fw-bold">@(Model.Items?.Count() ?? 0)</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Subtotal:</span>
+                                                <span id="subtotal" class="fw-bold">@Model.TotalAmount.ToString("C")</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Discount (<span id="discountPercent">@Model.DiscountPercentage</span>%):</span>
+                                                <span id="discountAmount" class="fw-bold text-danger">-@((Model.TotalAmount * Model.DiscountPercentage / 100).ToString("C"))</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Tax:</span>
+                                                <span id="taxAmount" class="fw-bold">@Model.TaxAmount.ToString("C")</span>
+                                            </div>
+                                            <hr>
+                                            <div class="d-flex justify-content-between">
+                                                <h6>Grand Total:</h6>
+                                                <h5 id="grandTotal" class="text-success">@Model.GrandTotal.ToString("C")</h5>
+                                            </div>
+                                            <input type="hidden" id="totalAmount" name="TotalAmount" value="@Model.TotalAmount" />
+                                            <input type="hidden" id="grandTotalValue" name="GrandTotal" value="@Model.GrandTotal" />
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Right Column - Order Items -->
+                                <div class="col-lg-8">
+                                    <div class="card">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <h6 class="card-title mb-0">Order Items</h6>
+                                            <button type="button" class="btn btn-sm btn-primary" id="addItemBtn">
+                                                <i class="fas fa-plus me-1"></i> Add Item
+                                            </button>
+                                        </div>
+                                        <div class="card-body">
+                                            <div id="orderItemsContainer">
+                                                @if (Model.Items != null && Model.Items.Any())
+                                                {
+                                                    var index = 0;
+                                                    foreach (var item in Model.Items)
+                                                    {
+                                                        <div class="order-item card mb-3" data-index="@index">
+                                                            <div class="card-body">
+                                                                <div class="row align-items-center">
+                                                                    <div class="col-md-4 mb-3 mb-md-0">
+                                                                        <label class="form-label">Product *</label>
+                                                                        <select class="form-select product-select" 
+                                                                                name="items[@index].ProductId" required>
+                                                                            <option value="">Select Product</option>
+                                                                            @foreach (var product in ViewBag.Products)
+                                                                            {
+                                                                                <option value="@product.Id" 
+                                                                                        data-price="@product.Price" 
+                                                                                        data-stock="@product.StockQuantity"
+                                                                                        selected="@(product.Id == item.ProductId)">
+                                                                                    @product.Name (Stock: @product.StockQuantity)
+                                                                                </option>
+                                                                            }
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="col-md-2 mb-3 mb-md-0">
+                                                                        <label class="form-label">Quantity *</label>
+                                                                        <input type="number" class="form-control quantity-input" 
+                                                                               name="items[@index].Quantity" min="1" 
+                                                                               value="@item.Quantity" required>
+                                                                        <small class="text-muted stock-info">Stock: @item.Product?.StockQuantity</small>
+                                                                    </div>
+                                                                    <div class="col-md-2 mb-3 mb-md-0">
+                                                                        <label class="form-label">Unit Price *</label>
+                                                                        <input type="number" class="form-control price-input" 
+                                                                               name="items[@index].UnitPrice" min="0" step="0.01" 
+                                                                               value="@item.UnitPrice" required>
+                                                                    </div>
+                                                                    <div class="col-md-2 mb-3 mb-md-0">
+                                                                        <label class="form-label">Total</label>
+                                                                        <input type="text" class="form-control total-price" 
+                                                                               readonly value="@item.TotalPrice.ToString("C")">
+                                                                    </div>
+                                                                    <div class="col-md-2 text-center">
+                                                                        <button type="button" class="btn btn-outline-danger remove-item-btn">
+                                                                            <i class="fas fa-trash"></i>
+                                                                        </button>
+                                                                    </div>
+                                                                    <input type="hidden" name="items[@index].Id" value="@item.Id" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        index++;
+                                                    }
+                                                }
+                                            </div>
+                                            <div id="noItemsMessage" class="text-center py-5" 
+                                                 style="@(Model.Items != null && Model.Items.Any() ? "display:none;" : "")">
+                                                <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                                                <h5 class="text-muted">No items added</h5>
+                                                <p class="text-muted">Click "Add Item" to start adding products.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mt-4">
+                                <a href="@Url.Action("SalesOrderDetails", "Order", new { area = "Admin", id = Model.Id })" class="btn btn-secondary">
+                                    <i class="fas fa-times me-2"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i> Update Sales Order
+                                </button>
+                            </div>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Item Template (Hidden) -->
+<div id="itemTemplate" class="d-none">
+    <div class="order-item card mb-3" data-index="{index}">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <label class="form-label">Product *</label>
+                    <select class="form-select product-select" name="items[{index}].ProductId" required>
+                        <option value="">Select Product</option>
+                        @foreach (var product in ViewBag.Products)
+                        {
+                            <option value="@product.Id" data-price="@product.Price" data-stock="@product.StockQuantity">
+                                @product.Name (Stock: @product.StockQuantity)
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2 mb-3 mb-md-0">
+                    <label class="form-label">Quantity *</label>
+                    <input type="number" class="form-control quantity-input" 
+                           name="items[{index}].Quantity" min="1" value="1" required>
+                    <small class="text-muted stock-info">Stock: 0</small>
+                </div>
+                <div class="col-md-2 mb-3 mb-md-0">
+                    <label class="form-label">Unit Price *</label>
+                    <input type="number" class="form-control price-input" 
+                           name="items[{index}].UnitPrice" min="0" step="0.01" value="0" required>
+                </div>
+                <div class="col-md-2 mb-3 mb-md-0">
+                    <label class="form-label">Total</label>
+                    <input type="text" class="form-control total-price" readonly value="$0.00">
+                </div>
+                <div class="col-md-2 text-center">
+                    <button type="button" class="btn btn-outline-danger remove-item-btn">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let itemIndex = @(Model.Items?.Count() ?? 0);
+            const itemsContainer = document.getElementById('orderItemsContainer');
+            const noItemsMessage = document.getElementById('noItemsMessage');
+            const itemTemplate = document.getElementById('itemTemplate').innerHTML;
+            const form = document.getElementById('editSalesOrderForm');
+            const discountInput = document.getElementById('DiscountPercentage');
+            const taxInput = document.getElementById('TaxAmount');
+            
+            // Add item button
+            document.getElementById('addItemBtn').addEventListener('click', function() {
+                addNewItem();
+            });
+            
+            // Discount and Tax change listeners
+            [discountInput, taxInput].forEach(input => {
+                input.addEventListener('input', updateSummary);
+            });
+            
+            function addNewItem() {
+                noItemsMessage.style.display = 'none';
+                
+                const newItem = itemTemplate.replace(/{index}/g, itemIndex);
+                const itemElement = document.createElement('div');
+                itemElement.innerHTML = newItem;
+                itemsContainer.appendChild(itemElement);
+                
+                // Add event listeners to new item
+                const newItemElement = itemsContainer.lastElementChild;
+                setupItemEvents(newItemElement);
+                
+                itemIndex++;
+                updateSummary();
+            }
+            
+            // Setup existing items
+            document.querySelectorAll('.order-item').forEach(item => {
+                setupItemEvents(item);
+            });
+            
+            function setupItemEvents(itemElement) {
+                // Product select change
+                const productSelect = itemElement.querySelector('.product-select');
+                const priceInput = itemElement.querySelector('.price-input');
+                const quantityInput = itemElement.querySelector('.quantity-input');
+                const stockInfo = itemElement.querySelector('.stock-info');
+                
+                productSelect.addEventListener('change', function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    if (selectedOption.value && selectedOption.dataset.price) {
+                        priceInput.value = parseFloat(selectedOption.dataset.price).toFixed(2);
+                        stockInfo.textContent = 'Stock: ' + selectedOption.dataset.stock;
+                        calculateItemTotal(itemElement);
+                        updateSummary();
+                    } else {
+                        stockInfo.textContent = 'Stock: 0';
+                    }
+                });
+                
+                // Quantity or price change
+                [quantityInput, priceInput].forEach(input => {
+                    input.addEventListener('input', function() {
+                        calculateItemTotal(itemElement);
+                        updateSummary();
+                    });
+                });
+                
+                // Remove item button
+                const removeBtn = itemElement.querySelector('.remove-item-btn');
+                removeBtn.addEventListener('click', function() {
+                    itemElement.remove();
+                    updateSummary();
+                    if (itemsContainer.children.length === 0) {
+                        noItemsMessage.style.display = 'block';
+                    }
+                });
+                
+                // Calculate initial total for existing items
+                calculateItemTotal(itemElement);
+            }
+            
+            function calculateItemTotal(itemElement) {
+                const quantity = parseFloat(itemElement.querySelector('.quantity-input').value) || 0;
+                const price = parseFloat(itemElement.querySelector('.price-input').value) || 0;
+                const total = quantity * price;
+                itemElement.querySelector('.total-price').value = '$' + total.toFixed(2);
+            }
+            
+            function updateSummary() {
+                let totalItems = 0;
+                let subtotal = 0;
+                
+                document.querySelectorAll('.order-item').forEach(item => {
+                    const quantity = parseFloat(item.querySelector('.quantity-input').value) || 0;
+                    const price = parseFloat(item.querySelector('.price-input').value) || 0;
+                    
+                    totalItems += quantity;
+                    subtotal += quantity * price;
+                });
+                
+                const discountPercent = parseFloat(discountInput.value) || 0;
+                const discountAmount = subtotal * (discountPercent / 100);
+                const taxAmount = parseFloat(taxInput.value) || 0;
+                const totalAmount = subtotal - discountAmount;
+                const grandTotal = totalAmount + taxAmount;
+                
+                document.getElementById('totalItems').textContent = totalItems;
+                document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+                document.getElementById('discountPercent').textContent = discountPercent.toFixed(2);
+                document.getElementById('discountAmount').textContent = '-$' + discountAmount.toFixed(2);
+                document.getElementById('taxAmount').textContent = '$' + taxAmount.toFixed(2);
+                document.getElementById('grandTotal').textContent = '$' + grandTotal.toFixed(2);
+                
+                document.getElementById('totalAmount').value = totalAmount.toFixed(2);
+                document.getElementById('grandTotalValue').value = grandTotal.toFixed(2);
+            }
+            
+            // Form submission validation
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const items = itemsContainer.querySelectorAll('.order-item');
+                    if (items.length === 0) {
+                        e.preventDefault();
+                        alert('Please add at least one item to the order.');
+                        return;
+                    }
+                    
+                    // Validate stock availability
+                    let stockError = false;
+                    items.forEach(item => {
+                        const productSelect = item.querySelector('.product-select');
+                        const quantityInput = item.querySelector('.quantity-input');
+                        const selectedOption = productSelect.options[productSelect.selectedIndex];
+                        
+                        if (productSelect.value && selectedOption.dataset.stock) {
+                            const availableStock = parseInt(selectedOption.dataset.stock);
+                            const requestedQuantity = parseInt(quantityInput.value);
+                            
+                            if (requestedQuantity > availableStock) {
+                                stockError = true;
+                                alert(`Insufficient stock for selected product. Available: ${availableStock}, Requested: ${requestedQuantity}`);
+                            }
+                        }
+                    });
+                    
+                    if (stockError) {
+                        e.preventDefault();
+                        return;
+                    }
+                    
+                    // Validate all items have product selected
+                    let hasError = false;
+                    items.forEach(item => {
+                        const productSelect = item.querySelector('.product-select');
+                        if (!productSelect.value) {
+                            hasError = true;
+                            productSelect.classList.add('is-invalid');
+                        } else {
+                            productSelect.classList.remove('is-invalid');
+                        }
+                    });
+                    
+                    if (hasError) {
+                        e.preventDefault();
+                        alert('Please select a product for all items.');
+                    }
+                });
+            }
+        });
+    </script>
+}

@@ -1,7 +1,14 @@
 @model IEnumerable<SIOMS.Models.Product>
 @{
     ViewData["Title"] = "Products";
+    ViewData["Subtitle"] = "Manage your inventory products";
     Layout = "_Layout";
+}
+
+@section HeaderButtons {
+    <a href="@Url.Action("Create", "Product", new { area = "Admin" })" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i> Add Product
+    </a>
 }
 
 <div class="container-fluid py-4">
@@ -20,15 +27,15 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <div class="row">
+                    <div class="row align-items-center">
                         <div class="col-md-8">
-                            <form method="get" class="form-inline">
-                                <div class="form-group mr-2">
+                            <form method="get" action="@Url.Action("Index", "Product", new { area = "Admin" })" class="row g-3">
+                                <div class="col-auto">
                                     <input type="text" name="search" class="form-control" 
                                            placeholder="Search products..." value="@ViewBag.SearchFilter">
                                 </div>
-                                <div class="form-group mr-2">
-                                    <select name="categoryId" class="form-control">
+                                <div class="col-auto">
+                                    <select name="categoryId" class="form-select">
                                         <option value="">All Categories</option>
                                         @foreach (var category in ViewBag.Categories)
                                         {
@@ -39,16 +46,21 @@
                                         }
                                     </select>
                                 </div>
-                                <button type="submit" class="btn btn-primary mr-2">
-                                    <i class="fas fa-search"></i> Search
-                                </button>
-                                <a href="@Url.Action("Index")" class="btn btn-secondary">
-                                    <i class="fas fa-redo"></i> Reset
-                                </a>
+                                <div class="col-auto">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search"></i> Search
+                                    </button>
+                                    @if (!string.IsNullOrEmpty(ViewBag.SearchFilter) || !string.IsNullOrEmpty(ViewBag.CategoryFilter))
+                                    {
+                                        <a href="@Url.Action("Index", "Product", new { area = "Admin" })" class="btn btn-secondary ms-2">
+                                            <i class="fas fa-redo"></i> Reset
+                                        </a>
+                                    }
+                                </div>
                             </form>
                         </div>
-                        <div class="col-md-4 text-right">
-                            <a asp-action="Create" class="btn btn-success">
+                        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                            <a href="@Url.Action("Create", "Product", new { area = "Admin" })" class="btn btn-success">
                                 <i class="fas fa-plus"></i> Add New Product
                             </a>
                         </div>
@@ -66,20 +78,16 @@
                     @if (TempData["Success"] != null)
                     {
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            @TempData["Success"]
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+                            <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     }
 
                     @if (TempData["Error"] != null)
                     {
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            @TempData["Error"]
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+                            <i class="fas fa-exclamation-circle me-2"></i> @TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     }
 
@@ -88,55 +96,58 @@
                             <thead class="thead-dark">
                                 <tr>
                                     <th>
-                                        <a href="@Url.Action("Index", new { 
+                                        <a href="@Url.Action("Index", "Product", new { 
+                                            area = "Admin",
                                             search = ViewBag.SearchFilter, 
                                             categoryId = ViewBag.CategoryFilter,
                                             sortOrder = ViewBag.NameSort 
-                                        })">
+                                        })" class="text-decoration-none text-white">
                                             Product Name
                                             @if (ViewBag.NameSort == "name_desc")
                                             {
-                                                <i class="fas fa-sort-down"></i>
+                                                <i class="fas fa-sort-down ms-1"></i>
                                             }
                                             else
                                             {
-                                                <i class="fas fa-sort-up"></i>
+                                                <i class="fas fa-sort-up ms-1"></i>
                                             }
                                         </a>
                                     </th>
                                     <th>Category</th>
                                     <th>Supplier</th>
                                     <th>
-                                        <a href="@Url.Action("Index", new { 
+                                        <a href="@Url.Action("Index", "Product", new { 
+                                            area = "Admin",
                                             search = ViewBag.SearchFilter, 
                                             categoryId = ViewBag.CategoryFilter,
                                             sortOrder = ViewBag.PriceSort 
-                                        })">
+                                        })" class="text-decoration-none text-white">
                                             Price
                                             @if (ViewBag.PriceSort == "price_desc")
                                             {
-                                                <i class="fas fa-sort-down"></i>
+                                                <i class="fas fa-sort-down ms-1"></i>
                                             }
                                             else
                                             {
-                                                <i class="fas fa-sort-up"></i>
+                                                <i class="fas fa-sort-up ms-1"></i>
                                             }
                                         </a>
                                     </th>
                                     <th>
-                                        <a href="@Url.Action("Index", new { 
+                                        <a href="@Url.Action("Index", "Product", new { 
+                                            area = "Admin",
                                             search = ViewBag.SearchFilter, 
                                             categoryId = ViewBag.CategoryFilter,
                                             sortOrder = ViewBag.StockSort 
-                                        })">
+                                        })" class="text-decoration-none text-white">
                                             Stock
                                             @if (ViewBag.StockSort == "stock_desc")
                                             {
-                                                <i class="fas fa-sort-down"></i>
+                                                <i class="fas fa-sort-down ms-1"></i>
                                             }
                                             else
                                             {
-                                                <i class="fas fa-sort-up"></i>
+                                                <i class="fas fa-sort-up ms-1"></i>
                                             }
                                         </a>
                                     </th>
@@ -146,89 +157,115 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var product in Model)
+                                @if (Model.Any())
                                 {
-                                    <tr class="@(product.StockQuantity <= product.MinStockLimit ? "table-warning" : "")">
-                                        <td>
-                                            <strong>@product.Name</strong>
-                                            @if (!string.IsNullOrEmpty(product.SKU))
-                                            {
-                                                <br>
-                                                <small class="text-muted">SKU: @product.SKU</small>
-                                            }
-                                        </td>
-                                        <td>@product.Category?.Name</td>
-                                        <td>@product.Supplier?.Name</td>
-                                        <td>@product.Price.ToString("C")</td>
-                                        <td>
-                                            <span class="@(product.StockQuantity <= product.MinStockLimit ? "badge badge-warning" : "badge badge-success")">
-                                                @product.StockQuantity
-                                            </span>
-                                        </td>
-                                        <td>@product.MinStockLimit</td>
-                                        <td>
-                                            @if (product.StockQuantity == 0)
-                                            {
-                                                <span class="badge badge-danger">Out of Stock</span>
-                                            }
-                                            else if (product.StockQuantity <= product.MinStockLimit)
-                                            {
-                                                <span class="badge badge-warning">Low Stock</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge badge-success">In Stock</span>
-                                            }
-                                        </td>
-                                        <td>
-                                            <div class="btn-group" role="group">
-                                                <a asp-action="Details" asp-route-id="@product.Id" 
-                                                   class="btn btn-sm btn-info" title="View Details">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a asp-action="Edit" asp-route-id="@product.Id" 
-                                                   class="btn btn-sm btn-primary" title="Edit">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <button type="button" class="btn btn-sm btn-warning stock-adjust-btn" 
-                                                        data-id="@product.Id" data-name="@product.Name" 
-                                                        data-current="@product.StockQuantity" title="Adjust Stock">
-                                                    <i class="fas fa-exchange-alt"></i>
-                                                </button>
-                                                <a asp-action="Delete" asp-route-id="@product.Id" 
-                                                   class="btn btn-sm btn-danger" title="Delete">
-                                                    <i class="fas fa-trash"></i>
-                                                </a>
-                                            </div>
+                                    @foreach (var product in Model)
+                                    {
+                                        <tr class="@(product.StockQuantity <= product.MinStockLimit ? "table-warning" : "")">
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar-circle bg-primary text-white me-3">
+                                                        <i class="fas fa-box"></i>
+                                                    </div>
+                                                    <div>
+                                                        <strong>@product.Name</strong>
+                                                        @if (!string.IsNullOrEmpty(product.SKU))
+                                                        {
+                                                            <br>
+                                                            <small class="text-muted">SKU: @product.SKU</small>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                @if (product.Category != null)
+                                                {
+                                                    <span class="badge bg-info">@product.Category.Name</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">No category</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (product.Supplier != null)
+                                                {
+                                                    <span>@product.Supplier.Name</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">No supplier</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <strong>@product.Price.ToString("C")</strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge @(product.StockQuantity <= product.MinStockLimit ? "bg-warning" : "bg-success")">
+                                                    @product.StockQuantity
+                                                </span>
+                                            </td>
+                                            <td>@product.MinStockLimit</td>
+                                            <td>
+                                                @if (product.StockQuantity == 0)
+                                                {
+                                                    <span class="badge bg-danger">
+                                                        <i class="fas fa-ban me-1"></i> Out of Stock
+                                                    </span>
+                                                }
+                                                else if (product.StockQuantity <= product.MinStockLimit)
+                                                {
+                                                    <span class="badge bg-warning">
+                                                        <i class="fas fa-exclamation-triangle me-1"></i> Low Stock
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-check me-1"></i> In Stock
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm" role="group">
+                                                    <a href="@Url.Action("Details", "Product", new { area = "Admin", id = product.Id })" 
+                                                       class="btn btn-outline-info" title="View Details">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="@Url.Action("Edit", "Product", new { area = "Admin", id = product.Id })" 
+                                                       class="btn btn-outline-primary" title="Edit">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <button type="button" class="btn btn-outline-warning stock-adjust-btn" 
+                                                            data-id="@product.Id" data-name="@product.Name" 
+                                                            data-current="@product.StockQuantity" title="Adjust Stock">
+                                                        <i class="fas fa-exchange-alt"></i>
+                                                    </button>
+                                                    <a href="@Url.Action("Delete", "Product", new { area = "Admin", id = product.Id })" 
+                                                       class="btn btn-outline-danger btn-delete-confirm" title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="8" class="text-center py-5">
+                                            <i class="fas fa-boxes fa-3x text-muted mb-3"></i>
+                                            <h5 class="text-muted">No products found</h5>
+                                            <p class="text-muted mb-4">Get started by adding your first product.</p>
+                                            <a href="@Url.Action("Create", "Product", new { area = "Admin" })" class="btn btn-primary">
+                                                <i class="fas fa-plus me-2"></i> Add First Product
+                                            </a>
                                         </td>
                                     </tr>
                                 }
                             </tbody>
                         </table>
                     </div>
-
-                    <!-- Pagination -->
-                    @if (ViewBag.TotalPages > 1)
-                    {
-                        <nav aria-label="Page navigation">
-                            <ul class="pagination justify-content-center">
-                                @for (int i = 1; i <= ViewBag.TotalPages; i++)
-                                {
-                                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
-                                        <a class="page-link" 
-                                           href="@Url.Action("Index", new { 
-                                               page = i, 
-                                               search = ViewBag.SearchFilter,
-                                               categoryId = ViewBag.CategoryFilter,
-                                               sortOrder = ViewBag.SortOrder 
-                                           })">
-                                            @i
-                                        </a>
-                                    </li>
-                                }
-                            </ul>
-                        </nav>
-                    }
                 </div>
             </div>
         </div>
@@ -236,46 +273,44 @@
 </div>
 
 <!-- Stock Adjustment Modal -->
-<div class="modal fade" id="stockAdjustModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+<div class="modal fade" id="stockAdjustModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Adjust Stock</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="stockAdjustForm" method="post">
+            <form id="stockAdjustForm">
                 <div class="modal-body">
-                    <input type="hidden" id="adjustProductId" name="id">
-                    <div class="form-group">
-                        <label>Product</label>
+                    <input type="hidden" id="adjustProductId">
+                    <div class="mb-3">
+                        <label class="form-label">Product</label>
                         <input type="text" id="adjustProductName" class="form-control" readonly>
                     </div>
-                    <div class="form-group">
-                        <label>Current Stock</label>
+                    <div class="mb-3">
+                        <label class="form-label">Current Stock</label>
                         <input type="number" id="adjustCurrentStock" class="form-control" readonly>
                     </div>
-                    <div class="form-group">
-                        <label>Adjustment Type</label>
-                        <select id="adjustmentType" class="form-control">
+                    <div class="mb-3">
+                        <label class="form-label">Adjustment Type</label>
+                        <select id="adjustmentType" class="form-select">
                             <option value="add">Add Stock</option>
                             <option value="remove">Remove Stock</option>
                             <option value="set">Set Stock</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label id="adjustQuantityLabel">Quantity to Add</label>
+                    <div class="mb-3">
+                        <label id="adjustQuantityLabel" class="form-label">Quantity to Add</label>
                         <input type="number" id="adjustQuantity" class="form-control" min="1" value="1">
                     </div>
-                    <div class="form-group">
-                        <label>Notes</label>
+                    <div class="mb-3">
+                        <label class="form-label">Notes</label>
                         <textarea id="adjustNotes" class="form-control" rows="3" 
                                   placeholder="Reason for adjustment..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary">Save Adjustment</button>
                 </div>
             </form>
@@ -285,43 +320,57 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function() {
+        document.addEventListener('DOMContentLoaded', function() {
+            // Delete confirmation
+            document.querySelectorAll('.btn-delete-confirm').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+                        e.preventDefault();
+                    }
+                });
+            });
+
             // Stock adjustment modal
-            $('.stock-adjust-btn').click(function() {
-                var id = $(this).data('id');
-                var name = $(this).data('name');
-                var current = $(this).data('current');
-                
-                $('#adjustProductId').val(id);
-                $('#adjustProductName').val(name);
-                $('#adjustCurrentStock').val(current);
-                $('#stockAdjustModal').modal('show');
+            document.querySelectorAll('.stock-adjust-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.dataset.id;
+                    const name = this.dataset.name;
+                    const current = this.dataset.current;
+                    
+                    document.getElementById('adjustProductId').value = id;
+                    document.getElementById('adjustProductName').value = name;
+                    document.getElementById('adjustCurrentStock').value = current;
+                    
+                    const modal = new bootstrap.Modal(document.getElementById('stockAdjustModal'));
+                    modal.show();
+                });
             });
 
             // Adjustment type change
-            $('#adjustmentType').change(function() {
-                var type = $(this).val();
-                var label = $('#adjustQuantityLabel');
+            document.getElementById('adjustmentType').addEventListener('change', function() {
+                const type = this.value;
+                const label = document.getElementById('adjustQuantityLabel');
                 
                 if (type === 'add') {
-                    label.text('Quantity to Add');
+                    label.textContent = 'Quantity to Add';
                 } else if (type === 'remove') {
-                    label.text('Quantity to Remove');
+                    label.textContent = 'Quantity to Remove';
                 } else {
-                    label.text('New Stock Quantity');
+                    label.textContent = 'New Stock Quantity';
                 }
             });
 
             // Stock adjustment form submission
-            $('#stockAdjustForm').submit(function(e) {
+            document.getElementById('stockAdjustForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                var id = $('#adjustProductId').val();
-                var type = $('#adjustmentType').val();
-                var quantity = parseInt($('#adjustQuantity').val());
-                var current = parseInt($('#adjustCurrentStock').val());
-                var notes = $('#adjustNotes').val();
-                var adjustment = 0;
+                const id = document.getElementById('adjustProductId').value;
+                const type = document.getElementById('adjustmentType').value;
+                const quantity = parseInt(document.getElementById('adjustQuantity').value);
+                const current = parseInt(document.getElementById('adjustCurrentStock').value);
+                const notes = document.getElementById('adjustNotes').value;
+                
+                let adjustment = 0;
                 
                 // Calculate adjustment based on type
                 if (type === 'add') {
@@ -333,25 +382,25 @@
                 }
                 
                 // Send AJAX request
-                $.ajax({
-                    url: '@Url.Action("UpdateStock", "Product")',
-                    type: 'POST',
-                    data: {
-                        id: id,
-                        adjustment: adjustment,
-                        notes: notes
+                fetch('@Url.Action("UpdateStock", "Product", new { area = "Admin" })', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
                     },
-                    success: function(response) {
-                        if (response.success) {
-                            alert(response.message);
-                            location.reload();
-                        } else {
-                            alert(response.message);
-                        }
-                    },
-                    error: function() {
-                        alert('An error occurred. Please try again.');
+                    body: JSON.stringify({ id: id, adjustment: adjustment, notes: notes })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert(data.message);
                     }
+                })
+                .catch(error => {
+                    alert('An error occurred. Please try again.');
                 });
             });
         });
