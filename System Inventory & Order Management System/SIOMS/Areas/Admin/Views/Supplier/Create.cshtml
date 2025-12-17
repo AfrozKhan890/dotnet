@@ -1,0 +1,84 @@
+@model SIOMS.Models.Supplier
+@{
+    ViewData["Title"] = "Create Supplier";
+    ViewData["Subtitle"] = "Add a new supplier";
+    Layout = "_Layout";
+}
+
+@section HeaderButtons {
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i> Back to List
+    </a>
+}
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card animate-slide-up">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Create New Supplier</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Name" class="form-label">Supplier Name *</label>
+                            <input asp-for="Name" class="form-control" placeholder="Enter supplier name" required>
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="ContactPerson" class="form-label">Contact Person</label>
+                            <input asp-for="ContactPerson" class="form-control" placeholder="Enter contact person name">
+                            <span asp-validation-for="ContactPerson" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Phone" class="form-label">Phone</label>
+                            <input asp-for="Phone" class="form-control" placeholder="Enter phone number">
+                            <span asp-validation-for="Phone" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Email" class="form-label">Email</label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="Enter email address">
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="col-md-12 mb-3">
+                            <label asp-for="Address" class="form-label">Address</label>
+                            <textarea asp-for="Address" class="form-control" rows="2" placeholder="Enter street address"></textarea>
+                            <span asp-validation-for="Address" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="City" class="form-label">City</label>
+                            <input asp-for="City" class="form-control" placeholder="Enter city">
+                            <span asp-validation-for="City" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="col-md-6 mb-4">
+                            <label asp-for="PostalCode" class="form-label">Postal Code</label>
+                            <input asp-for="PostalCode" class="form-control" placeholder="Enter postal code">
+                            <span asp-validation-for="PostalCode" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i> Create Supplier
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

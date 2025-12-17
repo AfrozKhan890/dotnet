@@ -1,0 +1,80 @@
+@model SIOMS.Models.Category
+@{
+    ViewData["Title"] = "Delete Category";
+    ViewData["Subtitle"] = "Remove category from system";
+    Layout = "_Layout";
+}
+
+@section HeaderButtons {
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i> Back to List
+    </a>
+}
+
+<div class="row">
+    <div class="col-lg-6 mx-auto">
+        <div class="card animate-slide-up">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0"><i class="fas fa-exclamation-triangle me-2"></i> Delete Category</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    <h5 class="alert-heading">Warning!</h5>
+                    <p>You are about to delete the category <strong>"@Model.Name"</strong>. This action cannot be undone.</p>
+                </div>
+                
+                <div class="category-info mb-4">
+                    <h6 class="text-muted mb-3">Category Details</h6>
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <strong>Category Name:</strong>
+                            <p class="mb-0">@Model.Name</p>
+                        </div>
+                        
+                        @if (!string.IsNullOrEmpty(Model.Description))
+                        {
+                            <div class="col-12 mb-3">
+                                <strong>Description:</strong>
+                                <p class="mb-0">@Model.Description</p>
+                            </div>
+                        }
+                        
+                        <div class="col-12 mb-3">
+                            <strong>Total Products:</strong>
+                            <p class="mb-0">
+                                <span class="badge @((Model.Products?.Count ?? 0) > 0 ? "bg-danger" : "bg-success")">
+                                    @(Model.Products?.Count ?? 0) products
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                @if (Model.Products?.Any() == true)
+                {
+                    <div class="alert alert-warning">
+                        <h6 class="alert-heading"><i class="fas fa-exclamation-circle me-2"></i> Important Notice</h6>
+                        <p class="mb-0">
+                            This category contains <strong>@Model.Products.Count products</strong>. 
+                            Deleting it will remove all associated products. 
+                            Consider moving products to another category before deleting.
+                        </p>
+                    </div>
+                }
+                
+                <form asp-action="Delete" method="post" class="mt-4">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-danger" 
+                                @if (Model.Products?.Any() == true) { <text>onclick="return confirm('This will delete @Model.Products.Count products. Are you absolutely sure?')"</text> }>
+                            <i class="fas fa-trash me-2"></i> Delete Category
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

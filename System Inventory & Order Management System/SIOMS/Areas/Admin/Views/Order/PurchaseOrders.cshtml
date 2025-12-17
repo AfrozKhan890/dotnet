@@ -1,0 +1,197 @@
+@model IEnumerable<SIOMS.Models.PurchaseOrder>
+@{
+    ViewData["Title"] = "Purchase Orders";
+    ViewData["Subtitle"] = "Manage supplier purchase orders";
+    Layout = "_Layout";
+}
+
+@section HeaderButtons {
+    <a asp-action="CreatePurchaseOrder" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i> New Purchase Order
+    </a>
+}
+
+<div class="card animate-slide-up">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Purchase Orders</h5>
+            <div class="d-flex gap-2">
+                <form method="get" class="d-flex gap-2">
+                    <select name="status" class="form-select form-select-sm">
+                        <option value="">All Status</option>
+                        <option value="Pending" selected="@(ViewBag.StatusFilter == "Pending")">Pending</option>
+                        <option value="Processing" selected="@(ViewBag.StatusFilter == "Processing")">Processing</option>
+                        <option value="Delivered" selected="@(ViewBag.StatusFilter == "Delivered")">Delivered</option>
+                        <option value="Cancelled" selected="@(ViewBag.StatusFilter == "Cancelled")">Cancelled</option>
+                    </select>
+                    <input type="date" name="fromDate" class="form-control form-control-sm" 
+                           value="@ViewBag.FromDate" placeholder="From Date">
+                    <input type="date" name="toDate" class="form-control form-control-sm" 
+                           value="@ViewBag.ToDate" placeholder="To Date">
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                    <a asp-action="PurchaseOrders" class="btn btn-sm btn-secondary">
+                        <i class="fas fa-redo"></i>
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Supplier</th>
+                        <th>Order Date</th>
+                        <th>Items</th>
+                        <th>Total Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model)
+                    {
+                        <tr class="animate-fade-in" style="animation-delay: @(Model.ToList().IndexOf(order) * 0.1)s">
+                            <td>
+                                <strong>@order.OrderNumber</strong>
+                                <br>
+                                <small class="text-muted">ID: @order.Id</small>
+                            </td>
+                            <td>
+                                <strong>@order.Supplier?.Name</strong>
+                                @if (!string.IsNullOrEmpty(order.Supplier?.ContactPerson))
+                                {
+                                    <br>
+                                    <small class="text-muted">@order.Supplier.ContactPerson</small>
+                                }
+                            </td>
+                            <td>
+                                @order.OrderDate.ToString("MMM dd, yyyy")
+                                <br>
+                                <small class="text-muted">@order.OrderDate.ToString("hh:mm tt")</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">@order.Items?.Count()</span>
+                            </td>
+                            <td>
+                                <strong class="text-success">@order.TotalAmount.ToString("C")</strong>
+                            </td>
+                            <td>
+                                @switch (order.Status)
+                                {
+                                    case "Pending":
+                                        <span class="badge bg-warning">Pending</span>
+                                        break;
+                                    case "Processing":
+                                        <span class="badge bg-info">Processing</span>
+                                        break;
+                                    case "Delivered":
+                                        <span class="badge bg-success">Delivered</span>
+                                        break;
+                                    case "Cancelled":
+                                        <span class="badge bg-danger">Cancelled</span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-secondary">@order.Status</span>
+                                        break;
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a asp-action="PurchaseOrderDetails" asp-route-id="@order.Id" 
+                                       class="btn btn-outline-info" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    @if (order.Status != "Delivered" && order.Status != "Cancelled")
+                                    {
+                                        <a asp-action="EditPurchaseOrder" asp-route-id="@order.Id" 
+                                           class="btn btn-outline-primary" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <div class="dropdown">
+                                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                                                    data-bs-toggle="dropdown" title="Update Status">
+                                                <i class="fas fa-cog"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                @if (order.Status != "Processing")
+                                                {
+                                                    <li>
+                                                        <a class="dropdown-item status-update" 
+                                                           data-id="@order.Id" data-status="Processing">
+                                                            <i class="fas fa-spinner me-2"></i>Mark as Processing
+                                                        </a>
+                                                    </li>
+                                                }
+                                                @if (order.Status != "Delivered")
+                                                {
+                                                    <li>
+                                                        <a class="dropdown-item status-update" 
+                                                           data-id="@order.Id" data-status="Delivered">
+                                                            <i class="fas fa-check me-2"></i>Mark as Delivered
+                                                        </a>
+                                                    </li>
+                                                }
+                                                @if (order.Status != "Cancelled")
+                                                {
+                                                    <li>
+                                                        <a class="dropdown-item status-update text-danger" 
+                                                           data-id="@order.Id" data-status="Cancelled">
+                                                            <i class="fas fa-times me-2"></i>Cancel Order
+                                                        </a>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Status update for purchase orders
+            document.querySelectorAll('.status-update').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const orderId = this.dataset.id;
+                    const status = this.dataset.status;
+                    
+                    if (confirm(`Are you sure you want to mark this order as ${status}?`)) {
+                        fetch(`/Admin/Order/UpdatePurchaseOrderStatus/${orderId}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                            },
+                            body: JSON.stringify({ id: orderId, status: status })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                adminDashboard.showNotification(data.message, 'success');
+                                setTimeout(() => location.reload(), 1000);
+                            } else {
+                                adminDashboard.showNotification(data.message, 'danger');
+                            }
+                        })
+                        .catch(error => {
+                            adminDashboard.showNotification('Error updating status', 'danger');
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

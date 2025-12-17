@@ -1,0 +1,114 @@
+@model SIOMS.Models.Product
+@{
+    ViewData["Title"] = "Create Product";
+    ViewData["Subtitle"] = "Add a new product";
+    Layout = "_Layout";
+}
+
+@section HeaderButtons {
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i> Back to List
+    </a>
+}
+
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="card animate-slide-up">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Create New Product</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Name" class="form-label">Product Name *</label>
+                            <input asp-for="Name" class="form-control" placeholder="Enter product name" required>
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="SKU" class="form-label">SKU</label>
+                            <input asp-for="SKU" class="form-control" placeholder="Auto-generated if left empty">
+                            <span asp-validation-for="SKU" class="text-danger small"></span>
+                            <small class="form-text text-muted">Stock Keeping Unit (leave empty for auto-generation)</small>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="CategoryId" class="form-label">Category *</label>
+                            <select asp-for="CategoryId" class="form-select" required>
+                                <option value="">Select Category</option>
+                                @foreach (var category in ViewBag.Categories)
+                                {
+                                    <option value="@category.Id">@category.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="SupplierId" class="form-label">Supplier *</label>
+                            <select asp-for="SupplierId" class="form-select" required>
+                                <option value="">Select Supplier</option>
+                                @foreach (var supplier in ViewBag.Suppliers)
+                                {
+                                    <option value="@supplier.Id">@supplier.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="SupplierId" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="col-md-12 mb-3">
+                            <label asp-for="Description" class="form-label">Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Enter product description"></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="Price" class="form-label">Price (PKR) *</label>
+                            <div class="input-group">
+                                <span class="input-group-text">Rs.</span>
+                                <input asp-for="Price" type="number" step="0.01" class="form-control" placeholder="0.00" required>
+                            </div>
+                            <span asp-validation-for="Price" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="StockQuantity" class="form-label">Initial Stock *</label>
+                            <input asp-for="StockQuantity" type="number" class="form-control" placeholder="0" required>
+                            <span asp-validation-for="StockQuantity" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="col-md-4 mb-4">
+                            <label asp-for="MinStockLimit" class="form-label">Min Stock Limit *</label>
+                            <input asp-for="MinStockLimit" type="number" class="form-control" placeholder="0" required>
+                            <span asp-validation-for="MinStockLimit" class="text-danger small"></span>
+                            <small class="form-text text-muted">Alert will trigger when stock reaches this level</small>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <strong>Note:</strong> Initial stock movement will be recorded automatically.
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i> Create Product
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

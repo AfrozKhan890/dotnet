@@ -1,0 +1,133 @@
+@model SIOMS.Models.Category
+@{
+    ViewData["Title"] = "Category Details";
+    ViewData["Subtitle"] = "View category information and products";
+    Layout = "_Layout";
+}
+
+@section HeaderButtons {
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i> Back to List
+    </a>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+        <i class="fas fa-edit me-2"></i> Edit
+    </a>
+}
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card animate-slide-up">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Category Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-12 mb-4">
+                        <div class="category-header d-flex align-items-center mb-4">
+                            <div class="category-icon-lg me-3">
+                                <i class="fas fa-folder fa-3x text-primary"></i>
+                            </div>
+                            <div>
+                                <h3 class="mb-1">@Model.Name</h3>
+                                <p class="text-muted mb-0">Category ID: @Model.Id</p>
+                            </div>
+                        </div>
+                        
+                        <div class="category-details">
+                            <h6 class="text-muted mb-3">Description</h6>
+                            @if (!string.IsNullOrEmpty(Model.Description))
+                            {
+                                <p class="mb-4">@Model.Description</p>
+                            }
+                            else
+                            {
+                                <p class="text-muted mb-4"><i>No description provided</i></p>
+                            }
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <h6 class="text-muted mb-2">Created Date</h6>
+                                    <p class="mb-0">
+                                        <i class="fas fa-calendar-plus me-2 text-muted"></i>
+                                        @Model.CreatedAt.ToString("MMMM dd, yyyy hh:mm tt")
+                                    </p>
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <h6 class="text-muted mb-2">Last Updated</h6>
+                                    <p class="mb-0">
+                                        <i class="fas fa-calendar-check me-2 text-muted"></i>
+                                        @(Model.UpdatedAt?.ToString("MMMM dd, yyyy hh:mm tt") ?? "Not updated yet")
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr class="my-4">
+                
+                <!-- Products in this category -->
+                <div class="category-products">
+                    <h5 class="mb-4">Products in this Category (@(Model.Products?.Count ?? 0))</h5>
+                    
+                    @if (Model.Products?.Any() == true)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Product Name</th>
+                                        <th>SKU</th>
+                                        <th>Stock</th>
+                                        <th>Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var product in Model.Products.Take(5))
+                                    {
+                                        <tr>
+                                            <td>
+                                                <a asp-controller="Product" asp-action="Details" asp-route-id="@product.Id" 
+                                                   class="text-decoration-none">
+                                                    @product.Name
+                                                </a>
+                                            </td>
+                                            <td>@product.SKU</td>
+                                            <td>
+                                                <span class="badge @(product.StockQuantity <= product.MinStockLimit ? "bg-warning" : "bg-success")">
+                                                    @product.StockQuantity
+                                                </span>
+                                            </td>
+                                            <td>@product.Price.ToString("C")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            
+                            @if (Model.Products.Count > 5)
+                            {
+                                <div class="text-center mt-3">
+                                    <a asp-controller="Product" asp-action="Index" asp-route-categoryId="@Model.Id" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        View All @Model.Products.Count Products
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-box-open fa-2x text-muted mb-3"></i>
+                            <p class="text-muted mb-0">No products found in this category.</p>
+                            <a asp-controller="Product" asp-action="Create" class="btn btn-sm btn-primary mt-3">
+                                <i class="fas fa-plus me-2"></i> Add Product
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

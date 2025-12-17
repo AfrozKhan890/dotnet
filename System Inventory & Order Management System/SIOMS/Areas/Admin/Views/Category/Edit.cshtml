@@ -1,0 +1,60 @@
+@model SIOMS.Models.Category
+@{
+    ViewData["Title"] = "Edit Category";
+    ViewData["Subtitle"] = "Update category information";
+    Layout = "_Layout";
+}
+
+@section HeaderButtons {
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i> Back to List
+    </a>
+}
+
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card animate-slide-up">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Edit Category</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group mb-3">
+                                <label asp-for="Name" class="form-label">Category Name *</label>
+                                <input asp-for="Name" class="form-control" placeholder="Enter category name" required>
+                                <span asp-validation-for="Name" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-12">
+                            <div class="form-group mb-4">
+                                <label asp-for="Description" class="form-label">Description</label>
+                                <textarea asp-for="Description" class="form-control" rows="4" 
+                                          placeholder="Enter category description"></textarea>
+                                <span asp-validation-for="Description" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i> Update Category
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

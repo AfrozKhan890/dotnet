@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SIOMS Admin</title>
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Admin CSS -->
+    <link rel="stylesheet" href="~/admin/css/admin.css" asp-append-version="true" />
+    
+    <!-- Custom Animations -->
+    <link rel="stylesheet" href="~/admin/css/animations.css" asp-append-version="true" />
+    
+    <!-- Page-specific CSS -->
+    @RenderSection("Styles", required: false)
+</head>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar Overlay (for mobile) -->
+        <div class="sidebar-overlay"></div>
+        
+        <!-- Sidebar -->
+        <nav class="bg-dark text-white" id="sidebar-wrapper">
+            <div class="sidebar-heading">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h5 class="mb-0 fw-bold">SIOMS</h5>
+                        <small class="text-muted">Admin Panel</small>
+                    </div>
+                    <button class="btn btn-sm btn-outline-light d-lg-none" id="sidebarClose">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="list-group list-group-flush mt-3">
+                <!-- Dashboard -->
+                <a href="/Admin/Dashboard/Index" 
+                   class="list-group-item list-group-item-action sidebar-link animate-slide-in" data-delay="0.1s">
+                    <i class="fas fa-tachometer-alt me-3"></i> Dashboard
+                    <span class="badge bg-primary float-end mt-1">New</span>
+                </a>
+                
+                <!-- Products -->
+                <a href="/Admin/Product/Index" 
+                   class="list-group-item list-group-item-action sidebar-link animate-slide-in" data-delay="0.2s">
+                    <i class="fas fa-box me-3"></i> Products
+                </a>
+                
+                <!-- Categories -->
+                <a href="/Admin/Category/Index" 
+                   class="list-group-item list-group-item-action sidebar-link animate-slide-in" data-delay="0.3s">
+                    <i class="fas fa-tags me-3"></i> Categories
+                </a>
+                
+                <!-- Orders -->
+                <a class="list-group-item list-group-item-action sidebar-link" 
+                   data-bs-toggle="collapse" href="#orderCollapse" role="button">
+                    <i class="fas fa-shopping-cart me-3"></i> Orders
+                    <i class="fas fa-chevron-down float-end mt-1"></i>
+                </a>
+                <div class="collapse" id="orderCollapse">
+                    <a href="/Admin/Order/PurchaseOrders" 
+                       class="list-group-item list-group-item-action ps-5">
+                        <i class="fas fa-truck me-2"></i> Purchase Orders
+                    </a>
+                    <a href="/Admin/Order/SalesOrders" 
+                       class="list-group-item list-group-item-action ps-5">
+                        <i class="fas fa-shopping-bag me-2"></i> Sales Orders
+                    </a>
+                </div>
+                
+                <!-- Suppliers -->
+                <a href="/Admin/Supplier/Index" 
+                   class="list-group-item list-group-item-action sidebar-link animate-slide-in" data-delay="0.4s">
+                    <i class="fas fa-truck-loading me-3"></i> Suppliers
+                </a>
+                
+                <!-- Customers -->
+                <a href="/Admin/Customer/Index" 
+                   class="list-group-item list-group-item-action sidebar-link animate-slide-in" data-delay="0.5s">
+                    <i class="fas fa-users me-3"></i> Customers
+                </a>
+                
+                <!-- Alerts -->
+                <a href="/Admin/Alert/Index" 
+                   class="list-group-item list-group-item-action sidebar-link animate-slide-in" data-delay="0.6s">
+                    <i class="fas fa-bell me-3"></i> Alerts
+                    <span id="alertCount" class="badge bg-danger float-end mt-1 pulse">0</span>
+                </a>
+                
+                <!-- Reports -->
+                <a href="/Admin/Report/Index" 
+                   class="list-group-item list-group-item-action sidebar-link animate-slide-in" data-delay="0.7s">
+                    <i class="fas fa-chart-bar me-3"></i> Reports
+                </a>
+                
+                <!-- Settings -->
+                <a href="/Admin/Settings/Index" 
+                   class="list-group-item list-group-item-action sidebar-link animate-slide-in" data-delay="0.8s">
+                    <i class="fas fa-cog me-3"></i> Settings
+                </a>
+            </div>
+            
+            <!-- Sidebar Footer -->
+            <div class="sidebar-footer mt-auto p-3 border-top">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-circle bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                         style="width: 40px; height: 40px;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div>
+                        <small class="d-block fw-bold" id="sidebarUsername">Admin User</small>
+                        <small class="text-muted">Online</small>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div id="page-content-wrapper">
+            <!-- Top Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm border-bottom">
+                <div class="container-fluid">
+                    <!-- Sidebar Toggle -->
+                    <button class="btn btn-outline-secondary me-3" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    
+                    <!-- Brand -->
+                    <a class="navbar-brand fw-bold text-primary animate-fade-in" href="/Admin/Dashboard/Index">
+                        <i class="fas fa-boxes me-2"></i>SIOMS Admin
+                    </a>
+                    
+                    <!-- Navbar Items -->
+                    <div class="navbar-nav ms-auto align-items-center">
+                        <!-- Theme Toggle -->
+                        <button class="btn btn-sm btn-outline-secondary me-3 theme-toggle" title="Toggle Theme">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                        
+                        <!-- Notifications -->
+                        <div class="dropdown me-3">
+                            <button class="btn btn-outline-secondary position-relative" type="button" 
+                                    data-bs-toggle="dropdown">
+                                <i class="fas fa-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger pulse">
+                                    3
+                                </span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end animate-fade-down">
+                                <h6 class="dropdown-header">Notifications</h6>
+                                <a class="dropdown-item" href="#">
+                                    <div class="d-flex">
+                                        <div class="flex-shrink-0">
+                                            <i class="fas fa-exclamation-circle text-danger"></i>
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <p class="mb-0">Low stock alert</p>
+                                            <small class="text-muted">5 minutes ago</small>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- User Dropdown -->
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                                    data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle me-2"></i>
+                                <span id="navbarUsername">Admin</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end animate-fade-down">
+                                <li><a class="dropdown-item" href="#">
+                                    <i class="fas fa-user me-2"></i>Profile
+                                </a></li>
+                                <li><a class="dropdown-item" href="#">
+                                    <i class="fas fa-cog me-2"></i>Settings
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-danger" href="/Admin/Admin/Logout">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Content Area -->
+            <main class="container-fluid px-4 py-4 animate-fade-in">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb bg-light p-3 rounded-3 shadow-sm">
+                        <li class="breadcrumb-item">
+                            <a href="/Admin/Dashboard/Index" class="text-decoration-none">
+                                <i class="fas fa-home me-1"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+                    </ol>
+                </nav>
+                
+                <!-- Page Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h1 class="h2 fw-bold mb-1">@ViewData["Title"]</h1>
+                        <p class="text-muted mb-0">@ViewData["Subtitle"]</p>
+                    </div>
+                    <div>
+                        @RenderSection("HeaderButtons", required: false)
+                    </div>
+                </div>
+                
+                <!-- Main Content -->
+                <div class="row animate-slide-up">
+                    <div class="col-12">
+                        @RenderBody()
+                    </div>
+                </div>
+            </main>
+
+            <!-- Footer -->
+            <footer class="footer mt-auto py-3 bg-light border-top">
+                <div class="container-fluid">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <span class="text-muted">
+                                &copy; @DateTime.Now.Year SIOMS - Smart Inventory & Order Management System
+                            </span>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <span class="text-muted">
+                                <i class="fas fa-circle text-success me-1"></i>
+                                System Status: <strong>Online</strong>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- IMPORTANT: jQuery pehle, phir Bootstrap, phir custom scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Admin Core JS (sidebar functionality) -->
+    <script src="~/admin/js/admin-core.js" asp-append-version="true"></script>
+    
+    <!-- Animations JS -->
+    <script src="~/admin/js/animations.js" asp-append-version="true"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Page-specific Scripts -->
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
