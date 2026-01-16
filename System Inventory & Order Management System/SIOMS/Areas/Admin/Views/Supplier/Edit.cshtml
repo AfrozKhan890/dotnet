@@ -2,97 +2,157 @@
 @{
     ViewData["Title"] = "Edit Supplier";
     ViewData["Subtitle"] = "Update supplier information";
-    Layout = "_Layout";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
 @section HeaderButtons {
-    <a asp-action="Index" class="btn btn-outline-secondary">
+    <a href="/Admin/Supplier/Index" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-left me-2"></i> Back to List
+    </a>
+    <a href="/Admin/Supplier/Details/@Model.Id" class="btn btn-outline-info">
+        <i class="fas fa-eye me-2"></i> View Details
     </a>
 }
 
 <div class="row">
     <div class="col-lg-10 mx-auto">
-        <div class="card animate-slide-up">
-            <div class="card-header">
-                <h5 class="card-title mb-0">Edit Supplier</h5>
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-edit me-2"></i> Edit Supplier
+                </h5>
             </div>
             <div class="card-body">
-                <form asp-action="Edit" method="post">
+                <!-- Current Info -->
+                <div class="alert alert-info mb-4">
+                    <h6><i class="fas fa-info-circle me-2"></i> Current Information</h6>
+                    <p class="mb-1"><strong>Supplier ID:</strong> @Model.Id</p>
+                    <p class="mb-1"><strong>Created:</strong> @Model.CreatedAt.ToString("MMMM dd, yyyy hh:mm tt")</p>
+                </div>
+
+                <!-- Validation Errors -->
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger">
+                        <h6><i class="fas fa-exclamation-triangle me-2"></i> Please fix the following errors:</h6>
+                        <ul class="mb-0">
+                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                            {
+                                <li>@error.ErrorMessage</li>
+                            }
+                        </ul>
+                    </div>
+                }
+
+                <!-- Edit Form -->
+                <form method="post" action="/Admin/Supplier/Edit/@Model.Id" id="editForm">
                     @Html.AntiForgeryToken()
-                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" name="Id" value="@Model.Id" />
                     
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label asp-for="Name" class="form-label">Supplier Name *</label>
-                                <input asp-for="Name" class="form-control" required>
-                                <span asp-validation-for="Name" class="text-danger small"></span>
+                            <div class="mb-3">
+                                <label for="Name" class="form-label">Supplier Name *</label>
+                                <input type="text" id="Name" name="Name" class="form-control" required
+                                       value="@Model.Name">
+                                @if (ViewData.ModelState["Name"]?.Errors?.Any() == true)
+                                {
+                                    <div class="invalid-feedback d-block">
+                                        @ViewData.ModelState["Name"]?.Errors?.First().ErrorMessage
+                                    </div>
+                                }
                             </div>
                         </div>
                         
                         <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label asp-for="ContactPerson" class="form-label">Contact Person *</label>
-                                <input asp-for="ContactPerson" class="form-control" required>
-                                <span asp-validation-for="ContactPerson" class="text-danger small"></span>
+                            <div class="mb-3">
+                                <label for="ContactPerson" class="form-label">Contact Person</label>
+                                <input type="text" id="ContactPerson" name="ContactPerson" class="form-control"
+                                       value="@Model.ContactPerson">
+                                @if (ViewData.ModelState["ContactPerson"]?.Errors?.Any() == true)
+                                {
+                                    <div class="invalid-feedback d-block">
+                                        @ViewData.ModelState["ContactPerson"]?.Errors?.First().ErrorMessage
+                                    </div>
+                                }
                             </div>
                         </div>
                         
                         <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label asp-for="Email" class="form-label">Email Address</label>
-                                <input asp-for="Email" type="email" class="form-control">
-                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            <div class="mb-3">
+                                <label for="Email" class="form-label">Email Address</label>
+                                <input type="email" id="Email" name="Email" class="form-control"
+                                       value="@Model.Email">
+                                @if (ViewData.ModelState["Email"]?.Errors?.Any() == true)
+                                {
+                                    <div class="invalid-feedback d-block">
+                                        @ViewData.ModelState["Email"]?.Errors?.First().ErrorMessage
+                                    </div>
+                                }
                             </div>
                         </div>
                         
                         <div class="col-md-6">
-                            <div class="form-group mb-3">
-                                <label asp-for="Phone" class="form-label">Phone Number</label>
-                                <input asp-for="Phone" class="form-control">
-                                <span asp-validation-for="Phone" class="text-danger small"></span>
+                            <div class="mb-3">
+                                <label for="Phone" class="form-label">Phone Number</label>
+                                <input type="text" id="Phone" name="Phone" class="form-control"
+                                       value="@Model.Phone">
+                                @if (ViewData.ModelState["Phone"]?.Errors?.Any() == true)
+                                {
+                                    <div class="invalid-feedback d-block">
+                                        @ViewData.ModelState["Phone"]?.Errors?.First().ErrorMessage
+                                    </div>
+                                }
                             </div>
                         </div>
                         
                         <div class="col-md-12">
-                            <div class="form-group mb-3">
-                                <label asp-for="Address" class="form-label">Address</label>
-                                <textarea asp-for="Address" class="form-control" rows="2"></textarea>
-                                <span asp-validation-for="Address" class="text-danger small"></span>
+                            <div class="mb-3">
+                                <label for="Address" class="form-label">Address</label>
+                                <textarea id="Address" name="Address" class="form-control" rows="2">@Model.Address</textarea>
+                                @if (ViewData.ModelState["Address"]?.Errors?.Any() == true)
+                                {
+                                    <div class="invalid-feedback d-block">
+                                        @ViewData.ModelState["Address"]?.Errors?.First().ErrorMessage
+                                    </div>
+                                }
                             </div>
                         </div>
                         
                         <div class="col-md-4">
-                            <div class="form-group mb-3">
-                                <label asp-for="City" class="form-label">City</label>
-                                <input asp-for="City" class="form-control">
-                                <span asp-validation-for="City" class="text-danger small"></span>
+                            <div class="mb-3">
+                                <label for="City" class="form-label">City</label>
+                                <input type="text" id="City" name="City" class="form-control"
+                                       value="@Model.City">
+                                @if (ViewData.ModelState["City"]?.Errors?.Any() == true)
+                                {
+                                    <div class="invalid-feedback d-block">
+                                        @ViewData.ModelState["City"]?.Errors?.First().ErrorMessage
+                                    </div>
+                                }
                             </div>
                         </div>
                         
                         <div class="col-md-4">
-                            <div class="form-group mb-3">
-                                <label asp-for="PostalCode" class="form-label">Postal Code</label>
-                                <input asp-for="PostalCode" class="form-control">
-                                <span asp-validation-for="PostalCode" class="text-danger small"></span>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-4">
-                            <div class="form-group mb-4">
-                                <label class="form-label">Status</label>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" asp-for="IsActive">
-                                    <label class="form-check-label" asp-for="IsActive">Active</label>
-                                </div>
+                            <div class="mb-3">
+                                <label for="PostalCode" class="form-label">Postal Code</label>
+                                <input type="text" id="PostalCode" name="PostalCode" class="form-control"
+                                       value="@Model.PostalCode">
+                                @if (ViewData.ModelState["PostalCode"]?.Errors?.Any() == true)
+                                {
+                                    <div class="invalid-feedback d-block">
+                                        @ViewData.ModelState["PostalCode"]?.Errors?.First().ErrorMessage
+                                    </div>
+                                }
                             </div>
                         </div>
                         
                         <div class="col-12">
                             <div class="d-flex justify-content-end gap-2">
-                                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-                                <button type="submit" class="btn btn-primary">
+                                <a href="/Admin/Supplier/Index" class="btn btn-secondary">
+                                    <i class="fas fa-times me-2"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn btn-warning" id="submitBtn">
                                     <i class="fas fa-save me-2"></i> Update Supplier
                                 </button>
                             </div>
@@ -105,5 +165,28 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('editForm');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            form.addEventListener('submit', function(e) {
+                const nameInput = document.getElementById('Name');
+                
+                if (!nameInput.value.trim()) {
+                    e.preventDefault();
+                    alert('Supplier name is required');
+                    nameInput.focus();
+                    return false;
+                }
+                
+                // Show loading
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Updating...';
+                submitBtn.disabled = true;
+            });
+            
+            // Auto-focus
+            document.getElementById('Name').focus();
+        });
+    </script>
 }

@@ -127,7 +127,7 @@
                                 {
                                     <tr>
                                         <td>@product.ProductName</td>
-                                        <td>@product.TotalSold</td>
+                                        <td>@product.QuantitySold</td>
                                         <td>@product.Revenue.ToString("C")</td>
                                     </tr>
                                 }
@@ -196,7 +196,7 @@
                                 @foreach (var movement in Model.RecentStockMovements)
                                 {
                                     <tr class="@(movement.Quantity > 0 ? "table-success" : "table-danger")">
-                                        <td>@movement.Product?.Name</td>
+                                        <td>@movement.ProductName</td>
                                         <td>@movement.Quantity</td>
                                         <td>@movement.MovementType</td>
                                         <td>@movement.MovementDate.ToString("MMM dd HH:mm")</td>
@@ -257,7 +257,7 @@
                 labels: @Html.Raw(Json.Serialize(Model.MonthlySales.Select(m => m.MonthName))),
                 datasets: [{
                     label: 'Sales',
-                    data: @Html.Raw(Json.Serialize(Model.MonthlySales.Select(m => m.Value))),
+                    data: @Html.Raw(Json.Serialize(Model.MonthlySales.Select(m => m.Sales))),
                     borderColor: 'rgb(54, 162, 235)',
                     backgroundColor: 'rgba(54, 162, 235, 0.2)',
                     tension: 0.1

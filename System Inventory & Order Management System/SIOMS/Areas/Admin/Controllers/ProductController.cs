@@ -1,116 +1,231 @@
+// SIOMS/Areas/Admin/Controllers/ProductController.cs
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SIOMS.Data;
 using SIOMS.Models;
+using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace SIOMS.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class ProductController : AdminBaseController
+    public class ProductController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _environment;
 
-        public ProductController(ApplicationDbContext context)
+        public ProductController(ApplicationDbContext context, IWebHostEnvironment environment)
         {
             _context = context;
+            _environment = environment;
         }
 
-        // GET: Products/Index
-        public async Task<IActionResult> Index(string search, int? categoryId, string sortOrder)
+        // GET: /Admin/Product
+        public async Task<IActionResult> Index(string search, int? categoryId)
         {
-            ViewData["NameSort"] = string.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
-            ViewData["PriceSort"] = sortOrder == "price" ? "price_desc" : "price";
-            ViewData["StockSort"] = sortOrder == "stock" ? "stock_desc" : "stock";
-            ViewData["CategoryFilter"] = categoryId;
-            ViewData["SearchFilter"] = search;
-
-            var products = _context.Products
-                .Include(p => p.Category)
-                .Include(p => p.Supplier)
-                .AsQueryable();
-
-            if (!string.IsNullOrEmpty(search))
+            try
             {
-                products = products.Where(p => 
-                    p.Name.Contains(search) || 
-                    p.Description.Contains(search) ||
-                    p.SKU.Contains(search));
-            }
+                var query = _context.Products
+                    .Include(p => p.Category)
+                    .Include(p => p.Supplier)
+                    .AsQueryable();
 
-            if (categoryId.HasValue)
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    search = search.ToLower();
+                    query = query.Where(p => 
+                        p.Name.ToLower().Contains(search) || 
+                        (p.SKU != null && p.SKU.ToLower().Contains(search)) ||
+                        (p.Description != null && p.Description.ToLower().Contains(search)));
+                }
+
+                if (categoryId.HasValue && categoryId > 0)
+                {
+                    query = query.Where(p => p.CategoryId == categoryId.Value);
+                }
+
+                ViewBag.SearchFilter = search;
+                ViewBag.CategoryFilter = categoryId;
+                ViewBag.Categories = await _context.Categories.ToListAsync();
+
+                var products = await query
+                    .OrderBy(p => p.Name)
+                    .ToListAsync();
+
+                return View(products);
+            }
+            catch (Exception ex)
             {
-                products = products.Where(p => p.CategoryId == categoryId.Value);
+                TempData["Error"] = $"Error loading products: {ex.Message}";
+                return View(new System.Collections.Generic.List<Product>());
             }
-
-            switch (sortOrder)
-            {
-                case "name_desc":
-                    products = products.OrderByDescending(p => p.Name);
-                    break;
-                case "price":
-                    products = products.OrderBy(p => p.Price);
-                    break;
-                case "price_desc":
-                    products = products.OrderByDescending(p => p.Price);
-                    break;
-                case "stock":
-                    products = products.OrderBy(p => p.StockQuantity);
-                    break;
-                case "stock_desc":
-                    products = products.OrderByDescending(p => p.StockQuantity);
-                    break;
-                default:
-                    products = products.OrderBy(p => p.Name);
-                    break;
-            }
-
-            ViewBag.Categories = await _context.Categories.ToListAsync();
-            return View(await products.ToListAsync());
         }
 
-        // GET: Products/Details/5
+        // GET: /Admin/Product/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-                return NotFound();
+            try
+            {
+                if (id == null || id <= 0)
+                {
+                    TempData["Error"] = "Invalid product ID";
+                    return RedirectToAction("Index");
+                }
 
-            var product = await _context.Products
-                .Include(p => p.Category)
-                .Include(p => p.Supplier)
-                .Include(p => p.StockMovements)
-                .FirstOrDefaultAsync(p => p.Id == id);
+                var product = await _context.Products
+                    .Include(p => p.Category)
+                    .Include(p => p.Supplier)
+                    .Include(p => p.StockMovements)
+                    .FirstOrDefaultAsync(p => p.Id == id);
 
-            if (product == null)
-                return NotFound();
+                if (product == null)
+                {
+                    TempData["Error"] = "Product not found";
+                    return RedirectToAction("Index");
+                }
 
-            return View(product);
+                return View(product);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error loading product: {ex.Message}";
+                return RedirectToAction("Index");
+            }
         }
 
-        // GET: Products/Create
-        public IActionResult Create()
+        // GET: /Admin/Product/Create
+       public async Task<IActionResult> Create()
         {
-            ViewBag.Categories = _context.Categories.OrderBy(c => c.Name).ToList();
-            ViewBag.Suppliers = _context.Suppliers.Where(s => s.IsActive).OrderBy(s => s.Name).ToList();
-            return View();
+            ViewBag.Categories = await _context.Categories.ToListAsync();
+            ViewBag.Suppliers = await _context.Suppliers.Where(s => s.IsActive).ToListAsync();
+            return View(new Product());
         }
 
-        // POST: Products/Create
+        // POST: /Admin/Product/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Product product)
         {
-            if (ModelState.IsValid)
+            try
             {
-                // Generate SKU if not provided
-                if (string.IsNullOrEmpty(product.SKU))
+                // ✅ FIX: Remove these fields from ModelState BEFORE checking ModelState.IsValid
+                ModelState.Remove("ImageFile");
+                ModelState.Remove("ImageUrl");
+                ModelState.Remove("SKU");
+                ModelState.Remove("Category"); // Remove navigation property
+                ModelState.Remove("Supplier"); // Remove navigation property
+                
+                // ✅ FIX: Check for null values instead of relying on ModelState
+                if (string.IsNullOrWhiteSpace(product.Name))
                 {
-                    product.SKU = "PROD-" + DateTime.Now.ToString("yyyyMMddHHmmss");
+                    ModelState.AddModelError("Name", "Product name is required");
                 }
 
+                if (product.CategoryId <= 0)
+                {
+                    ModelState.AddModelError("CategoryId", "Please select a category");
+                }
+
+                if (product.SupplierId <= 0)
+                {
+                    ModelState.AddModelError("SupplierId", "Please select a supplier");
+                }
+
+                if (product.Price <= 0)
+                {
+                    ModelState.AddModelError("Price", "Price must be greater than 0");
+                }
+
+                if (product.StockQuantity < 0)
+                {
+                    ModelState.AddModelError("StockQuantity", "Stock quantity cannot be negative");
+                }
+
+                if (product.MinStockLimit < 0)
+                {
+                    ModelState.AddModelError("MinStockLimit", "Minimum stock limit cannot be negative");
+                }
+
+                // ✅ Image validation
+                bool hasImageFile = product.ImageFile != null && product.ImageFile.Length > 0;
+                bool hasImageUrl = !string.IsNullOrWhiteSpace(product.ImageUrl);
+                
+                if (hasImageFile && hasImageUrl)
+                {
+                    ModelState.AddModelError("ImageFile", "Please choose only one: upload file OR enter URL, not both");
+                    ModelState.AddModelError("ImageUrl", "Please choose only one: upload file OR enter URL, not both");
+                }
+                else if (hasImageFile)
+                {
+                    var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
+                    var fileExtension = Path.GetExtension(product.ImageFile.FileName).ToLower();
+                    
+                    if (!allowedExtensions.Contains(fileExtension))
+                    {
+                        ModelState.AddModelError("ImageFile", "Only image files (JPG, PNG, GIF, BMP, WEBP) are allowed");
+                    }
+
+                    if (product.ImageFile.Length > 5 * 1024 * 1024)
+                    {
+                        ModelState.AddModelError("ImageFile", "Image file size cannot exceed 5MB");
+                    }
+                }
+                else if (hasImageUrl)
+                {
+                    if (!Uri.IsWellFormedUriString(product.ImageUrl, UriKind.Absolute))
+                    {
+                        ModelState.AddModelError("ImageUrl", "Please enter a valid URL");
+                    }
+                }
+
+                // ✅ FIX: Check if ModelState has any errors (excluding the removed ones)
+                bool hasErrors = ModelState.Keys
+                    .Where(key => key != "ImageFile" && key != "ImageUrl" && key != "SKU" && key != "Category" && key != "Supplier")
+                    .Any(key => ModelState[key].Errors.Any());
+
+                if (hasErrors)
+                {
+                    ViewBag.Categories = await _context.Categories.ToListAsync();
+                    ViewBag.Suppliers = await _context.Suppliers.Where(s => s.IsActive).ToListAsync();
+                    return View(product);
+                }
+
+                // Generate SKU if empty
+                if (string.IsNullOrWhiteSpace(product.SKU))
+                {
+                    product.SKU = $"PROD-{DateTime.Now:yyyyMMddHHmmss}";
+                }
+
+                // Handle image upload
+                if (hasImageFile)
+                {
+                    var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "products");
+                    
+                    if (!Directory.Exists(uploadsFolder))
+                        Directory.CreateDirectory(uploadsFolder);
+
+                    var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(product.ImageFile.FileName);
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await product.ImageFile.CopyToAsync(fileStream);
+                    }
+
+                    product.ImageUrl = $"/uploads/products/{uniqueFileName}";
+                }
+                else if (hasImageUrl)
+                {
+                    product.ImageUrl = product.ImageUrl.Trim();
+                }
+
+                // Set timestamps
                 product.CreatedAt = DateTime.Now;
-                _context.Add(product);
+                
+                // Save product
+                _context.Products.Add(product);
                 await _context.SaveChangesAsync();
 
                 // Create initial stock movement
@@ -120,186 +235,379 @@ namespace SIOMS.Areas.Admin.Controllers
                     {
                         ProductId = product.Id,
                         Quantity = product.StockQuantity,
-                        MovementType = "Initial",
+                        MovementType = "Initial Stock",
                         ReferenceNumber = "INITIAL",
-                        Notes = "Initial stock"
+                        Notes = "Initial stock entry",
+                        MovementDate = DateTime.Now
                     };
                     _context.StockMovements.Add(movement);
                     await _context.SaveChangesAsync();
                 }
 
-                TempData["Success"] = "Product created successfully!";
-                return RedirectToAction(nameof(Index));
+                TempData["Success"] = $"Product '{product.Name}' created successfully";
+                return RedirectToAction("Index");
             }
-
-            ViewBag.Categories = _context.Categories.OrderBy(c => c.Name).ToList();
-            ViewBag.Suppliers = _context.Suppliers.Where(s => s.IsActive).OrderBy(s => s.Name).ToList();
-            return View(product);
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error creating product: {ex.Message}";
+                ViewBag.Categories = await _context.Categories.ToListAsync();
+                ViewBag.Suppliers = await _context.Suppliers.Where(s => s.IsActive).ToListAsync();
+                return View(product);
+            }
         }
-
-        // GET: Products/Edit/5
+        // GET: /Admin/Product/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-                return NotFound();
+            try
+            {
+                if (id == null || id <= 0)
+                {
+                    TempData["Error"] = "Invalid product ID";
+                    return RedirectToAction("Index");
+                }
 
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
-                return NotFound();
+                var product = await _context.Products.FindAsync(id);
+                if (product == null)
+                {
+                    TempData["Error"] = "Product not found";
+                    return RedirectToAction("Index");
+                }
 
-            ViewBag.Categories = _context.Categories.OrderBy(c => c.Name).ToList();
-            ViewBag.Suppliers = _context.Suppliers.Where(s => s.IsActive).OrderBy(s => s.Name).ToList();
-            return View(product);
+                ViewBag.Categories = await _context.Categories.ToListAsync();
+                ViewBag.Suppliers = await _context.Suppliers.Where(s => s.IsActive).ToListAsync();
+                return View(product);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error loading product: {ex.Message}";
+                return RedirectToAction("Index");
+            }
         }
 
-        // POST: Products/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Product product)
+        // POST: /Admin/Product/Edit/5
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Edit(int id, Product product)
+{
+    try
+    {
+        if (id != product.Id)
         {
-            if (id != product.Id)
-                return NotFound();
+            TempData["Error"] = "Invalid product ID";
+            return RedirectToAction("Index");
+        }
 
-            if (ModelState.IsValid)
+        // ✅ FIX: Remove these fields from ModelState BEFORE checking validation
+        ModelState.Remove("ImageFile");
+        ModelState.Remove("ImageUrl");
+        ModelState.Remove("SKU");
+        ModelState.Remove("Category"); // Remove navigation property
+        ModelState.Remove("Supplier"); // Remove navigation property
+        ModelState.Remove("StockQuantity"); // Stock can't be updated here
+        
+        // ✅ FIX: Manual validation like Create method
+        if (string.IsNullOrWhiteSpace(product.Name))
+        {
+            ModelState.AddModelError("Name", "Product name is required");
+        }
+
+        if (product.CategoryId <= 0)
+        {
+            ModelState.AddModelError("CategoryId", "Please select a category");
+        }
+
+        if (product.SupplierId <= 0)
+        {
+            ModelState.AddModelError("SupplierId", "Please select a supplier");
+        }
+
+        if (product.Price <= 0)
+        {
+            ModelState.AddModelError("Price", "Price must be greater than 0");
+        }
+
+        if (product.MinStockLimit < 0)
+        {
+            ModelState.AddModelError("MinStockLimit", "Minimum stock limit cannot be negative");
+        }
+
+        // ✅ Image validation: If both file and URL are provided, show error
+        bool hasImageFile = product.ImageFile != null && product.ImageFile.Length > 0;
+        bool hasImageUrl = !string.IsNullOrWhiteSpace(product.ImageUrl);
+        
+        if (hasImageFile && hasImageUrl)
+        {
+            ModelState.AddModelError("ImageFile", "Please choose only one: upload file OR enter URL, not both");
+            ModelState.AddModelError("ImageUrl", "Please choose only one: upload file OR enter URL, not both");
+        }
+        else if (hasImageFile)
+        {
+            // Validate image file
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
+            var fileExtension = Path.GetExtension(product.ImageFile.FileName).ToLower();
+            
+            if (!allowedExtensions.Contains(fileExtension))
             {
-                try
-                {
-                    var existingProduct = await _context.Products.FindAsync(id);
-                    
-                    // Track stock change
-                    int stockChange = product.StockQuantity - existingProduct.StockQuantity;
-                    
-                    // Update properties
-                    existingProduct.Name = product.Name;
-                    existingProduct.Description = product.Description;
-                    existingProduct.CategoryId = product.CategoryId;
-                    existingProduct.SupplierId = product.SupplierId;
-                    existingProduct.Price = product.Price;
-                    existingProduct.StockQuantity = product.StockQuantity;
-                    existingProduct.MinStockLimit = product.MinStockLimit;
-                    existingProduct.SKU = product.SKU;
-                    existingProduct.UpdatedAt = DateTime.Now;
-
-                    _context.Update(existingProduct);
-
-                    // Record stock adjustment if quantity changed
-                    if (stockChange != 0)
-                    {
-                        var movement = new StockMovement
-                        {
-                            ProductId = existingProduct.Id,
-                            Quantity = stockChange,
-                            MovementType = stockChange > 0 ? "Adjustment IN" : "Adjustment OUT",
-                            ReferenceNumber = "ADJUST",
-                            Notes = $"Manual adjustment by admin. Previous: {existingProduct.StockQuantity - stockChange}, New: {product.StockQuantity}"
-                        };
-                        _context.StockMovements.Add(movement);
-                    }
-
-                    await _context.SaveChangesAsync();
-                    TempData["Success"] = "Product updated successfully!";
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProductExists(product.Id))
-                        return NotFound();
-                    else
-                        throw;
-                }
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError("ImageFile", "Only image files (JPG, PNG, GIF, BMP, WEBP) are allowed");
             }
 
-            ViewBag.Categories = _context.Categories.OrderBy(c => c.Name).ToList();
-            ViewBag.Suppliers = _context.Suppliers.Where(s => s.IsActive).OrderBy(s => s.Name).ToList();
+            // Check file size (5MB max)
+            if (product.ImageFile.Length > 5 * 1024 * 1024)
+            {
+                ModelState.AddModelError("ImageFile", "Image file size cannot exceed 5MB");
+            }
+        }
+        else if (hasImageUrl)
+        {
+            // Validate URL format
+            if (!Uri.IsWellFormedUriString(product.ImageUrl, UriKind.Absolute))
+            {
+                ModelState.AddModelError("ImageUrl", "Please enter a valid URL");
+            }
+        }
+
+        // ✅ FIX: Check if ModelState has any errors (excluding the removed ones)
+        bool hasErrors = ModelState.Keys
+            .Where(key => key != "ImageFile" && key != "ImageUrl" && key != "SKU" && 
+                         key != "Category" && key != "Supplier" && key != "StockQuantity")
+            .Any(key => ModelState[key].Errors.Any());
+
+        if (hasErrors)
+        {
+            ViewBag.Categories = await _context.Categories.ToListAsync();
+            ViewBag.Suppliers = await _context.Suppliers.Where(s => s.IsActive).ToListAsync();
             return View(product);
         }
 
-        // GET: Products/Delete/5
+        // Get existing product
+        var existingProduct = await _context.Products.FindAsync(id);
+        if (existingProduct == null)
+        {
+            TempData["Error"] = "Product not found";
+            return RedirectToAction("Index");
+        }
+
+        // Handle image upload
+        if (hasImageFile)
+        {
+            // Delete old image if exists (only if it's a local file)
+            if (!string.IsNullOrEmpty(existingProduct.ImageUrl) && 
+                existingProduct.ImageUrl.StartsWith("/uploads/products/"))
+            {
+                var oldImagePath = Path.Combine(_environment.WebRootPath, existingProduct.ImageUrl.TrimStart('/'));
+                if (System.IO.File.Exists(oldImagePath))
+                    System.IO.File.Delete(oldImagePath);
+            }
+
+            // Save new image
+            var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", "products");
+            if (!Directory.Exists(uploadsFolder))
+                Directory.CreateDirectory(uploadsFolder);
+
+            var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(product.ImageFile.FileName);
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await product.ImageFile.CopyToAsync(fileStream);
+            }
+
+            existingProduct.ImageUrl = $"/uploads/products/{uniqueFileName}";
+        }
+        // If user provided ImageUrl (but didn't upload file)
+        else if (hasImageUrl)
+        {
+            // If existing product had uploaded image, delete it
+            if (!string.IsNullOrEmpty(existingProduct.ImageUrl) && 
+                existingProduct.ImageUrl.StartsWith("/uploads/products/"))
+            {
+                var oldImagePath = Path.Combine(_environment.WebRootPath, existingProduct.ImageUrl.TrimStart('/'));
+                if (System.IO.File.Exists(oldImagePath))
+                    System.IO.File.Delete(oldImagePath);
+            }
+            
+            existingProduct.ImageUrl = product.ImageUrl.Trim();
+        }
+        // If user wants to remove image (both fields empty and we have existing image)
+        else if (string.IsNullOrEmpty(product.ImageUrl) && 
+                 !string.IsNullOrEmpty(existingProduct.ImageUrl) &&
+                 !hasImageFile)
+        {
+            // Delete the existing image file if it's local
+            if (existingProduct.ImageUrl.StartsWith("/uploads/products/"))
+            {
+                var oldImagePath = Path.Combine(_environment.WebRootPath, existingProduct.ImageUrl.TrimStart('/'));
+                if (System.IO.File.Exists(oldImagePath))
+                    System.IO.File.Delete(oldImagePath);
+            }
+            existingProduct.ImageUrl = null;
+        }
+        // Otherwise keep existing image
+
+        // Update properties
+        existingProduct.Name = product.Name;
+        existingProduct.Description = product.Description;
+        existingProduct.CategoryId = product.CategoryId;
+        existingProduct.SupplierId = product.SupplierId;
+        existingProduct.Price = product.Price;
+        existingProduct.MinStockLimit = product.MinStockLimit;
+        existingProduct.SKU = product.SKU;
+        existingProduct.UpdatedAt = DateTime.Now;
+
+        _context.Update(existingProduct);
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = $"Product '{product.Name}' updated successfully";
+        return RedirectToAction("Index");
+    }
+    catch (Exception ex)
+    {
+        TempData["Error"] = $"Error updating product: {ex.Message}";
+        ViewBag.Categories = await _context.Categories.ToListAsync();
+        ViewBag.Suppliers = await _context.Suppliers.Where(s => s.IsActive).ToListAsync();
+        return View(product);
+    }
+}
+        // GET: /Admin/Product/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-                return NotFound();
+            try
+            {
+                if (id == null || id <= 0)
+                {
+                    TempData["Error"] = "Invalid product ID";
+                    return RedirectToAction("Index");
+                }
 
-            var product = await _context.Products
-                .Include(p => p.Category)
-                .Include(p => p.Supplier)
-                .FirstOrDefaultAsync(p => p.Id == id);
+                var product = await _context.Products
+                    .Include(p => p.Category)
+                    .Include(p => p.Supplier)
+                    .FirstOrDefaultAsync(p => p.Id == id);
 
-            if (product == null)
-                return NotFound();
+                if (product == null)
+                {
+                    TempData["Error"] = "Product not found";
+                    return RedirectToAction("Index");
+                }
 
-            return View(product);
+                return View(product);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error loading product: {ex.Message}";
+                return RedirectToAction("Index");
+            }
         }
 
-        // POST: Products/Delete/5
+        // POST: /Admin/Product/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-            
-            // Check if product has related records
-            var hasSales = await _context.SalesOrderItems.AnyAsync(si => si.ProductId == id);
-            var hasPurchases = await _context.PurchaseOrderItems.AnyAsync(pi => pi.ProductId == id);
-            
-            if (hasSales || hasPurchases)
+            try
             {
-                TempData["Error"] = "Cannot delete product because it has related sales or purchase records.";
-                return RedirectToAction(nameof(Index));
+                var product = await _context.Products
+                    .Include(p => p.StockMovements)
+                    .FirstOrDefaultAsync(p => p.Id == id);
+
+                if (product == null)
+                {
+                    TempData["Error"] = "Product not found";
+                    return RedirectToAction("Index");
+                }
+
+                // Delete image file if exists (only if it's a local file)
+                if (!string.IsNullOrEmpty(product.ImageUrl) && 
+                    product.ImageUrl.StartsWith("/uploads/products/"))
+                {
+                    var imagePath = Path.Combine(_environment.WebRootPath, product.ImageUrl.TrimStart('/'));
+                    if (System.IO.File.Exists(imagePath))
+                        System.IO.File.Delete(imagePath);
+                }
+
+                // Delete stock movements first
+                if (product.StockMovements.Any())
+                {
+                    _context.StockMovements.RemoveRange(product.StockMovements);
+                }
+
+                // Delete product
+                _context.Products.Remove(product);
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = $"Product '{product.Name}' deleted successfully";
+                return RedirectToAction("Index");
             }
-
-            // Delete stock movements first
-            var movements = _context.StockMovements.Where(sm => sm.ProductId == id);
-            _context.StockMovements.RemoveRange(movements);
-
-            // Delete alert logs
-            var alerts = _context.AlertLogs.Where(a => a.ProductId == id);
-            _context.AlertLogs.RemoveRange(alerts);
-
-            // Delete product
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] = "Product deleted successfully!";
-            return RedirectToAction(nameof(Index));
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error deleting product: {ex.Message}";
+                return RedirectToAction("Index");
+            }
         }
 
-        // POST: Products/UpdateStock/5
+        // POST: /Admin/Product/UpdateStock/5
         [HttpPost]
-        public async Task<IActionResult> UpdateStock(int id, int adjustment, string notes)
+        [ValidateAntiForgeryToken]
+        
+public async Task<IActionResult> UpdateStock(int id, [FromBody] StockUpdateModel model)
+{
+    try
+    {
+        var product = await _context.Products.FindAsync(id);
+        if (product == null)
+            return Json(new { success = false, message = "Product not found" });
+
+        // Validate new stock
+        if (model.NewStock < 0)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
-                return Json(new { success = false, message = "Product not found" });
-
-            int oldStock = product.StockQuantity;
-            product.StockQuantity += adjustment;
-            product.UpdatedAt = DateTime.Now;
-
-            // Record stock movement
-            var movement = new StockMovement
-            {
-                ProductId = id,
-                Quantity = adjustment,
-                MovementType = adjustment > 0 ? "Manual IN" : "Manual OUT",
-                ReferenceNumber = "MANUAL",
-                Notes = notes ?? $"Manual adjustment. Old: {oldStock}, New: {product.StockQuantity}"
-            };
-
-            _context.StockMovements.Add(movement);
-            _context.Update(product);
-            await _context.SaveChangesAsync();
-
             return Json(new { 
-                success = true, 
-                message = "Stock updated successfully",
-                newStock = product.StockQuantity 
+                success = false, 
+                message = "Stock quantity cannot be negative" 
             });
         }
 
+        int oldStock = product.StockQuantity;
+        product.StockQuantity = model.NewStock;
+        product.UpdatedAt = DateTime.Now;
+
+        // Create stock movement record
+        var movement = new StockMovement
+        {
+            ProductId = product.Id,
+            Quantity = model.NewStock - oldStock,
+            MovementType = "Manual Adjustment",
+            ReferenceNumber = $"MANUAL-{DateTime.Now:yyyyMMddHHmmss}",
+            Notes = model.Notes,
+            MovementDate = DateTime.Now
+        };
+
+        _context.StockMovements.Add(movement);
+        _context.Update(product);
+        await _context.SaveChangesAsync();
+
+        return Json(new { 
+            success = true, 
+            message = "Stock updated successfully",
+            newStock = product.StockQuantity 
+        });
+    }
+    catch (Exception ex)
+    {
+        return Json(new { 
+            success = false, 
+            message = $"Error: {ex.Message}"
+        });
+    }
+}
         private bool ProductExists(int id)
         {
             return _context.Products.Any(e => e.Id == id);
         }
+    }
+
+    public class StockUpdateModel
+    {
+        public int NewStock { get; set; }
+        public string Notes { get; set; }
     }
 }

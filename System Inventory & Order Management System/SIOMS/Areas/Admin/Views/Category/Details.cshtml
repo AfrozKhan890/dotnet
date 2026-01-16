@@ -2,14 +2,14 @@
 @{
     ViewData["Title"] = "Category Details";
     ViewData["Subtitle"] = "View category information and products";
-    Layout = "_Layout";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
 @section HeaderButtons {
-    <a asp-action="Index" class="btn btn-outline-secondary">
+    <a href="/Admin/Category/Index" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-left me-2"></i> Back to List
     </a>
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+    <a href="/Admin/Category/Edit/@Model.Id" class="btn btn-primary">
         <i class="fas fa-edit me-2"></i> Edit
     </a>
 }
@@ -81,6 +81,7 @@
                                         <th>SKU</th>
                                         <th>Stock</th>
                                         <th>Price</th>
+                                        <th>View</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -88,10 +89,7 @@
                                     {
                                         <tr>
                                             <td>
-                                                <a asp-controller="Product" asp-action="Details" asp-route-id="@product.Id" 
-                                                   class="text-decoration-none">
-                                                    @product.Name
-                                                </a>
+                                                @product.Name
                                             </td>
                                             <td>@product.SKU</td>
                                             <td>
@@ -100,6 +98,12 @@
                                                 </span>
                                             </td>
                                             <td>@product.Price.ToString("C")</td>
+                                            <td>
+                                                <a href="/Admin/Product/Details/@product.Id" 
+                                                   class="btn btn-sm btn-outline-info">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
                                         </tr>
                                     }
                                 </tbody>
@@ -108,7 +112,7 @@
                             @if (Model.Products.Count > 5)
                             {
                                 <div class="text-center mt-3">
-                                    <a asp-controller="Product" asp-action="Index" asp-route-categoryId="@Model.Id" 
+                                    <a href="/Admin/Product/Index?categoryId=@Model.Id" 
                                        class="btn btn-sm btn-outline-primary">
                                         View All @Model.Products.Count Products
                                     </a>
@@ -121,7 +125,7 @@
                         <div class="text-center py-4">
                             <i class="fas fa-box-open fa-2x text-muted mb-3"></i>
                             <p class="text-muted mb-0">No products found in this category.</p>
-                            <a asp-controller="Product" asp-action="Create" class="btn btn-sm btn-primary mt-3">
+                            <a href="/Admin/Product/Create" class="btn btn-sm btn-primary mt-3">
                                 <i class="fas fa-plus me-2"></i> Add Product
                             </a>
                         </div>

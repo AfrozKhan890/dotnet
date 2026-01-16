@@ -8,12 +8,13 @@ namespace SIOMS.Areas.Admin.Controllers
     {
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            // Temporary disable for testing
-            // var user = context.HttpContext.Session.GetString("AdminUser");
-            // if (string.IsNullOrEmpty(user))
-            // {
-            //     context.Result = new RedirectToActionResult("Login", "Admin", new { area = "Admin" });
-            // }
+            // Check if user is logged in (for production)
+            var user = context.HttpContext.Session.GetString("AdminUser");
+            if (string.IsNullOrEmpty(user))
+            {
+                // Redirect to login if not authenticated
+                context.Result = new RedirectToActionResult("Login", "Admin", new { area = "Admin" });
+            }
 
             base.OnActionExecuting(context);
         }

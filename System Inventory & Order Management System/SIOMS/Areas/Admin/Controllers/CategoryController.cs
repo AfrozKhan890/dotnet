@@ -2,13 +2,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SIOMS.Data;
 using SIOMS.Models;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace SIOMS.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class CategoryController : AdminBaseController
+    public class CategoryController : Controller
     {
         private readonly ApplicationDbContext _context;
 
@@ -17,137 +18,274 @@ namespace SIOMS.Areas.Admin.Controllers
             _context = context;
         }
 
-        // GET: Categories/Index
-        public async Task<IActionResult> Index()
+        // GET: /Admin/Category
+        public async Task<IActionResult> Index(string search)
         {
-            return View(await _context.Categories.OrderBy(c => c.Name).ToListAsync());
+            try
+            {
+                var query = _context.Categories
+                    .Include(c => c.Products)
+                    .AsQueryable();
+
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    search = search.ToLower();
+                    query = query.Where(c => 
+                        c.Name.ToLower().Contains(search) || 
+                        (c.Description != null && c.Description.ToLower().Contains(search)));
+                }
+
+                var categories = await query
+                    .OrderBy(c => c.Name)
+                    .ToListAsync();
+
+                ViewBag.SearchFilter = search;
+                return View(categories);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error loading categories: {ex.Message}";
+                return View(new System.Collections.Generic.List<Category>());
+            }
         }
 
-        // GET: Categories/Details/5
+        // GET: /Admin/Category/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-                return NotFound();
+            try
+            {
+                if (id == null || id <= 0)
+                {
+                    TempData["Error"] = "Invalid category ID";
+                    return RedirectToAction("Index");
+                }
 
-            var category = await _context.Categories
-                .Include(c => c.Products)
-                .ThenInclude(p => p.Supplier)
-                .FirstOrDefaultAsync(c => c.Id == id);
+                var category = await _context.Categories
+                    .Include(c => c.Products)
+                    .FirstOrDefaultAsync(c => c.Id == id);
 
-            if (category == null)
-                return NotFound();
+                if (category == null)
+                {
+                    TempData["Error"] = "Category not found";
+                    return RedirectToAction("Index");
+                }
 
-            return View(category);
+                return View(category);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error loading category: {ex.Message}";
+                return RedirectToAction("Index");
+            }
         }
 
-        // GET: Categories/Create
+        // GET: /Admin/Category/Create
         public IActionResult Create()
         {
-            return View();
+            return View(new Category()); // Empty category for form
         }
 
-        // POST: Categories/Create
+        // POST: /Admin/Category/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Category category)
         {
-            if (ModelState.IsValid)
+            try
             {
+                if (string.IsNullOrWhiteSpace(category.Name))
+                {
+                    ModelState.AddModelError("Name", "Category name is required");
+                    return View(category);
+                }
+
+                // Trim inputs
+                category.Name = category.Name.Trim();
+                if (!string.IsNullOrWhiteSpace(category.Description))
+                    category.Description = category.Description.Trim();
+
+                // Check for duplicate
+                bool exists = await _context.Categories
+                    .AnyAsync(c => c.Name.ToLower() == category.Name.ToLower());
+                
+                if (exists)
+                {
+                    ModelState.AddModelError("Name", "A category with this name already exists");
+                    return View(category);
+                }
+
+                // Set timestamps
                 category.CreatedAt = DateTime.Now;
-                _context.Add(category);
+                
+                // Save
+                _context.Categories.Add(category);
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "Category created successfully!";
-                return RedirectToAction(nameof(Index));
+
+                TempData["Success"] = $"Category '{category.Name}' created successfully";
+                return RedirectToAction("Index");
             }
-            return View(category);
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error creating category: {ex.Message}";
+                return View(category);
+            }
         }
 
-        // GET: Categories/Edit/5
+        // GET: /Admin/Category/Edit/5 - FIXED: Shows old data
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-                return NotFound();
+            try
+            {
+                if (id == null || id <= 0)
+                {
+                    TempData["Error"] = "Invalid category ID";
+                    return RedirectToAction("Index");
+                }
 
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
-                return NotFound();
-            return View(category);
+                var category = await _context.Categories.FindAsync(id);
+                
+                if (category == null)
+                {
+                    TempData["Error"] = "Category not found";
+                    return RedirectToAction("Index");
+                }
+
+                return View(category);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error loading category: {ex.Message}";
+                return RedirectToAction("Index");
+            }
         }
 
-        // POST: Categories/Edit/5
+        // POST: /Admin/Category/Edit/5 - FIXED: Properly updates
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Category category)
         {
-            if (id != category.Id)
-                return NotFound();
-
-            if (ModelState.IsValid)
+            try
             {
-                try
+                if (id != category.Id)
                 {
-                    var existingCategory = await _context.Categories.FindAsync(id);
-                    existingCategory.Name = category.Name;
-                    existingCategory.Description = category.Description;
-                    existingCategory.UpdatedAt = DateTime.Now;
+                    TempData["Error"] = "Invalid category ID";
+                    return RedirectToAction("Index");
+                }
+
+                if (string.IsNullOrWhiteSpace(category.Name))
+                {
+                    ModelState.AddModelError("Name", "Category name is required");
+                    return View(category);
+                }
+
+                // Trim inputs
+                category.Name = category.Name.Trim();
+                if (!string.IsNullOrWhiteSpace(category.Description))
+                    category.Description = category.Description.Trim();
+
+                // Get existing category
+                var existingCategory = await _context.Categories.FindAsync(id);
+                if (existingCategory == null)
+                {
+                    TempData["Error"] = "Category not found";
+                    return RedirectToAction("Index");
+                }
+
+                // Check for duplicate (excluding current)
+                if (existingCategory.Name.ToLower() != category.Name.ToLower())
+                {
+                    bool duplicate = await _context.Categories
+                        .AnyAsync(c => c.Name.ToLower() == category.Name.ToLower() && c.Id != id);
                     
-                    _context.Update(existingCategory);
-                    await _context.SaveChangesAsync();
-                    TempData["Success"] = "Category updated successfully!";
+                    if (duplicate)
+                    {
+                        ModelState.AddModelError("Name", "A category with this name already exists");
+                        return View(category);
+                    }
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CategoryExists(category.Id))
-                        return NotFound();
-                    else
-                        throw;
-                }
-                return RedirectToAction(nameof(Index));
+
+                // Update properties - FIXED: Update existing category, not create new
+                existingCategory.Name = category.Name;
+                existingCategory.Description = category.Description;
+                existingCategory.UpdatedAt = DateTime.Now;
+
+                _context.Update(existingCategory);
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = $"Category '{category.Name}' updated successfully";
+                return RedirectToAction("Index");
             }
-            return View(category);
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error updating category: {ex.Message}";
+                return View(category);
+            }
         }
 
-        // GET: Categories/Delete/5
+        // GET: /Admin/Category/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-                return NotFound();
-
-            var category = await _context.Categories
-                .Include(c => c.Products)
-                .FirstOrDefaultAsync(c => c.Id == id);
-
-            if (category == null)
-                return NotFound();
-
-            if (category.Products.Any())
+            try
             {
-                TempData["Error"] = "Cannot delete category because it has products. Delete or move products first.";
-                return RedirectToAction(nameof(Index));
-            }
+                if (id == null || id <= 0)
+                {
+                    TempData["Error"] = "Invalid category ID";
+                    return RedirectToAction("Index");
+                }
 
-            return View(category);
+                var category = await _context.Categories
+                    .Include(c => c.Products)
+                    .FirstOrDefaultAsync(c => c.Id == id);
+
+                if (category == null)
+                {
+                    TempData["Error"] = "Category not found";
+                    return RedirectToAction("Index");
+                }
+
+                return View(category);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error loading category: {ex.Message}";
+                return RedirectToAction("Index");
+            }
         }
 
-        // POST: Categories/Delete/5
+        // POST: /Admin/Category/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
-            
-            // Check if category has products
-            var hasProducts = await _context.Products.AnyAsync(p => p.CategoryId == id);
-            if (hasProducts)
+            try
             {
-                TempData["Error"] = "Cannot delete category because it has products.";
-                return RedirectToAction(nameof(Index));
-            }
+                var category = await _context.Categories
+                    .Include(c => c.Products)
+                    .FirstOrDefaultAsync(c => c.Id == id);
 
-            _context.Categories.Remove(category);
-            await _context.SaveChangesAsync();
-            TempData["Success"] = "Category deleted successfully!";
-            return RedirectToAction(nameof(Index));
+                if (category == null)
+                {
+                    TempData["Error"] = "Category not found";
+                    return RedirectToAction("Index");
+                }
+
+                // Check if category has products
+                if (category.Products.Any())
+                {
+                    TempData["Error"] = $"Cannot delete category '{category.Name}' because it has {category.Products.Count} product(s)";
+                    return RedirectToAction("Index");
+                }
+
+                _context.Categories.Remove(category);
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = $"Category '{category.Name}' deleted successfully";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error deleting category: {ex.Message}";
+                return RedirectToAction("Index");
+            }
         }
 
         private bool CategoryExists(int id)
