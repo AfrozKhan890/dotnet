@@ -1,0 +1,276 @@
+@model IEnumerable<SIOMS.Models.SalesOrder>
+@{
+    ViewData["Title"] = "Sales Orders";
+    ViewData["Subtitle"] = "Manage customer sales orders";
+    Layout = "_Layout";
+}
+
+@section HeaderButtons {
+    <a href="@Url.Action("CreateSalesOrder", "Order", new { area = "Admin" })" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i> New Sales Order
+    </a>
+}
+
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="page-header">
+                <h2>Sales Orders</h2>
+                <p class="text-muted">Manage customer sales orders</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <form method="get" action="@Url.Action("SalesOrders", "Order", new { area = "Admin" })" class="row g-3">
+                                <div class="col-auto">
+                                    <select name="status" class="form-select">
+                                        <option value="">All Status</option>
+                                        <option value="Pending" selected="@(ViewBag.StatusFilter == "Pending")">Pending</option>
+                                        <option value="Processing" selected="@(ViewBag.StatusFilter == "Processing")">Processing</option>
+                                        <option value="Completed" selected="@(ViewBag.StatusFilter == "Completed")">Completed</option>
+                                        <option value="Cancelled" selected="@(ViewBag.StatusFilter == "Cancelled")">Cancelled</option>
+                                    </select>
+                                </div>
+                                <div class="col-auto">
+                                    <input type="date" name="fromDate" class="form-control" 
+                                           value="@ViewBag.FromDate" placeholder="From Date">
+                                </div>
+                                <div class="col-auto">
+                                    <input type="date" name="toDate" class="form-control" 
+                                           value="@ViewBag.ToDate" placeholder="To Date">
+                                </div>
+                                <div class="col-auto">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-filter"></i> Filter
+                                    </button>
+                                    @if (!string.IsNullOrEmpty(ViewBag.StatusFilter) || !string.IsNullOrEmpty(ViewBag.FromDate) || !string.IsNullOrEmpty(ViewBag.ToDate))
+                                    {
+                                        <a href="@Url.Action("SalesOrders", "Order", new { area = "Admin" })" class="btn btn-secondary ms-2">
+                                            <i class="fas fa-redo"></i> Reset
+                                        </a>
+                                    }
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                            <a href="@Url.Action("CreateSalesOrder", "Order", new { area = "Admin" })" class="btn btn-success">
+                                <i class="fas fa-plus"></i> New Sales Order
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales Orders Table -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card animate-slide-up">
+                <div class="card-body">
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i> @TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Order #</th>
+                                    <th>Customer</th>
+                                    <th>Order Date</th>
+                                    <th>Items</th>
+                                    <th>Total Amount</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Model.Any())
+                                {
+                                    @foreach (var order in Model)
+                                    {
+                                        <tr class="animate-fade-in" style="animation-delay: @(Model.ToList().IndexOf(order) * 0.1)s">
+                                            <td>
+                                                <strong>@order.OrderNumber</strong>
+                                                <br>
+                                                <small class="text-muted">ID: @order.Id</small>
+                                            </td>
+                                            <td>
+                                                @if (order.Customer != null)
+                                                {
+                                                    <strong>@order.Customer.Name</strong>
+                                                    @if (!string.IsNullOrEmpty(order.Customer.Phone))
+                                                    {
+                                                        <br>
+                                                        <small class="text-muted">@order.Customer.Phone</small>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Customer not found</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @order.OrderDate.ToString("MMM dd, yyyy")
+                                                <br>
+                                                <small class="text-muted">@order.OrderDate.ToString("hh:mm tt")</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-primary">@order.Items?.Count()</span>
+                                            </td>
+                                            <td>
+                                                <strong class="text-success">@order.GrandTotal.ToString("C")</strong>
+                                            </td>
+                                            <td>
+                                                @switch (order.Status)
+                                                {
+                                                    case "Pending":
+                                                        <span class="badge bg-warning">Pending</span>
+                                                        break;
+                                                    case "Processing":
+                                                        <span class="badge bg-info">Processing</span>
+                                                        break;
+                                                    case "Completed":
+                                                        <span class="badge bg-success">Completed</span>
+                                                        break;
+                                                    case "Cancelled":
+                                                        <span class="badge bg-danger">Cancelled</span>
+                                                        break;
+                                                    default:
+                                                        <span class="badge bg-secondary">@order.Status</span>
+                                                        break;
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="@Url.Action("SalesOrderDetails", "Order", new { area = "Admin", id = order.Id })" 
+                                                       class="btn btn-outline-info" title="View Details">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    @if (order.Status != "Completed" && order.Status != "Cancelled")
+                                                    {
+                                                        <a href="@Url.Action("EditSalesOrder", "Order", new { area = "Admin", id = order.Id })" 
+                                                           class="btn btn-outline-primary" title="Edit">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                                                                    data-bs-toggle="dropdown" title="Update Status">
+                                                                <i class="fas fa-cog"></i>
+                                                            </button>
+                                                            <ul class="dropdown-menu">
+                                                                @if (order.Status != "Processing")
+                                                                {
+                                                                    <li>
+                                                                        <a class="dropdown-item sales-status-update" 
+                                                                           data-id="@order.Id" data-status="Processing">
+                                                                            <i class="fas fa-spinner me-2"></i>Mark as Processing
+                                                                        </a>
+                                                                    </li>
+                                                                }
+                                                                @if (order.Status != "Completed")
+                                                                {
+                                                                    <li>
+                                                                        <a class="dropdown-item sales-status-update" 
+                                                                           data-id="@order.Id" data-status="Completed">
+                                                                            <i class="fas fa-check me-2"></i>Mark as Completed
+                                                                        </a>
+                                                                    </li>
+                                                                }
+                                                                @if (order.Status != "Cancelled")
+                                                                {
+                                                                    <li>
+                                                                        <a class="dropdown-item sales-status-update text-danger" 
+                                                                           data-id="@order.Id" data-status="Cancelled">
+                                                                            <i class="fas fa-times me-2"></i>Cancel Order
+                                                                        </a>
+                                                                    </li>
+                                                                }
+                                                            </ul>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="7" class="text-center py-5">
+                                            <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
+                                            <h5 class="text-muted">No sales orders found</h5>
+                                            <p class="text-muted mb-4">Get started by creating your first sales order.</p>
+                                            <a href="@Url.Action("CreateSalesOrder", "Order", new { area = "Admin" })" class="btn btn-primary">
+                                                <i class="fas fa-plus me-2"></i> Create First Order
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Status update for sales orders
+            document.querySelectorAll('.sales-status-update').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const orderId = this.dataset.id;
+                    const status = this.dataset.status;
+                    
+                    if (confirm(`Are you sure you want to mark this order as ${status}?`)) {
+                        fetch('@Url.Action("UpdateSalesOrderStatus", "Order", new { area = "Admin" })/' + orderId, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                            },
+                            body: JSON.stringify({ status: status })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert(data.message);
+                                setTimeout(() => location.reload(), 1000);
+                            } else {
+                                alert(data.message);
+                            }
+                        })
+                        .catch(error => {
+                            alert('Error updating status');
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

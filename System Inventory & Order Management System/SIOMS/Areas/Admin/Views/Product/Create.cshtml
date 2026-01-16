@@ -1,0 +1,387 @@
+@model SIOMS.Models.Product
+@{
+    ViewData["Title"] = "Create Product";
+    ViewData["Subtitle"] = "Add a new product";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+@section HeaderButtons {
+    <a href="/Admin/Product/Index" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i> Back to Products
+    </a>
+}
+
+<div class="row">
+    <div class="col-lg-10 mx-auto">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-plus-circle me-2"></i> Create New Product
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Validation Summary -->
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger">
+                        <h6><i class="fas fa-exclamation-triangle me-2"></i> Please fix the following errors:</h6>
+                        <ul class="mb-0">
+                            @foreach (var key in ViewData.ModelState.Keys)
+                            {
+                                // Skip navigation properties and fields we removed from validation
+                                if (key != "Category" && key != "Supplier")
+                                {
+                                    foreach (var error in ViewData.ModelState[key].Errors)
+                                    {
+                                        <li>@error.ErrorMessage</li>
+                                    }
+                                }
+                            }
+                        </ul>
+                    </div>
+                }
+
+                <form method="post" action="/Admin/Product/Create" enctype="multipart/form-data" id="createForm">
+                    @Html.AntiForgeryToken()
+                    
+                    <div class="row">
+                        <!-- Left Column: Basic Info -->
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-md-8 mb-3">
+                                    <label for="Name" class="form-label">Product Name *</label>
+                                    <input type="text" id="Name" name="Name" class="form-control @(ViewData.ModelState["Name"]?.Errors?.Any() == true ? "is-invalid" : "")" 
+                                           placeholder="Enter product name" required autofocus
+                                           value="@Model?.Name">
+                                    @if (ViewData.ModelState["Name"]?.Errors?.Any() == true)
+                                    {
+                                        <div class="invalid-feedback">
+                                            @ViewData.ModelState["Name"]?.Errors?.First().ErrorMessage
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <small class="text-muted">Required field</small>
+                                    }
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <label for="SKU" class="form-label">SKU (Optional)</label>
+                                    <input type="text" id="SKU" name="SKU" class="form-control" 
+                                           placeholder="Will auto-generate if empty"
+                                           value="@Model?.SKU">
+                                    <small class="text-muted">Leave empty for auto-generated SKU</small>
+                                </div>
+                                
+                                <div class="col-12 mb-3">
+                                    <label for="Description" class="form-label">Description (Optional)</label>
+                                    <textarea id="Description" name="Description" class="form-control" rows="4" 
+                                              placeholder="Enter product description">@Model?.Description</textarea>
+                                    <small class="text-muted">Optional field</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Image Upload (Optional) -->
+                            <div class="mb-4">
+                                <label class="form-label">Product Image (Optional)</label>
+                                <div class="border p-3 rounded">
+                                    <div id="imagePreview" class="mb-3 text-center" style="display: none;">
+                                        <p><strong>Image Preview:</strong></p>
+                                        <img id="previewImage" src="#" alt="Preview" 
+                                             style="max-width: 200px; max-height: 200px; object-fit: cover; border-radius: 5px;" class="mb-2">
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="ImageFile" class="form-label">Upload Image File</label>
+                                        <input type="file" id="ImageFile" name="ImageFile" 
+                                               class="form-control @(ViewData.ModelState["ImageFile"]?.Errors?.Any() == true ? "is-invalid" : "")" 
+                                               accept="image/*" onchange="previewImage(event)">
+                                        @if (ViewData.ModelState["ImageFile"]?.Errors?.Any() == true)
+                                        {
+                                            <div class="invalid-feedback">
+                                                @ViewData.ModelState["ImageFile"]?.Errors?.First().ErrorMessage
+                                            </div>
+                                        }
+                                        <small class="text-muted">Upload from your device (JPG, PNG, GIF, BMP, WEBP - Max 5MB)</small>
+                                    </div>
+                                    
+                                    <div class="text-center my-2">
+                                        <strong class="text-muted">OR</strong>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="ImageUrl" class="form-label">Enter Image URL</label>
+                                        <input type="url" id="ImageUrl" name="ImageUrl" class="form-control @(ViewData.ModelState["ImageUrl"]?.Errors?.Any() == true ? "is-invalid" : "")" 
+                                               placeholder="https://example.com/image.jpg"
+                                               value="@Model?.ImageUrl">
+                                        @if (ViewData.ModelState["ImageUrl"]?.Errors?.Any() == true)
+                                        {
+                                            <div class="invalid-feedback">
+                                                @ViewData.ModelState["ImageUrl"]?.Errors?.First().ErrorMessage
+                                            </div>
+                                        }
+                                        <small class="text-muted">Enter online image URL</small>
+                                    </div>
+                                    
+                                    <div class="alert alert-info mt-3">
+                                        <small><i class="fas fa-info-circle me-2"></i> 
+                                            <strong>Note:</strong> Image is optional. You can either upload a file OR enter a URL OR leave both empty.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Column: Details -->
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="CategoryId" class="form-label">Category *</label>
+                                <select id="CategoryId" name="CategoryId" class="form-select @(ViewData.ModelState["CategoryId"]?.Errors?.Any() == true ? "is-invalid" : "")" required>
+                                    <option value="">Select Category</option>
+                                    @foreach (var category in ViewBag.Categories)
+                                    {
+                                        <option value="@category.Id" 
+                                                selected="@(Model?.CategoryId == category.Id)">
+                                            @category.Name
+                                        </option>
+                                    }
+                                </select>
+                                @if (ViewData.ModelState["CategoryId"]?.Errors?.Any() == true)
+                                {
+                                    <div class="invalid-feedback">
+                                        @ViewData.ModelState["CategoryId"]?.Errors?.First().ErrorMessage
+                                    </div>
+                                }
+                                else
+                                {
+                                    <small class="text-muted">Required field</small>
+                                }
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="SupplierId" class="form-label">Supplier *</label>
+                                <select id="SupplierId" name="SupplierId" class="form-select @(ViewData.ModelState["SupplierId"]?.Errors?.Any() == true ? "is-invalid" : "")" required>
+                                    <option value="">Select Supplier</option>
+                                    @foreach (var supplier in ViewBag.Suppliers)
+                                    {
+                                        <option value="@supplier.Id" 
+                                                selected="@(Model?.SupplierId == supplier.Id)">
+                                            @supplier.Name
+                                        </option>
+                                    }
+                                </select>
+                                @if (ViewData.ModelState["SupplierId"]?.Errors?.Any() == true)
+                                {
+                                    <div class="invalid-feedback">
+                                        @ViewData.ModelState["SupplierId"]?.Errors?.First().ErrorMessage
+                                    </div>
+                                }
+                                else
+                                {
+                                    <small class="text-muted">Required field</small>
+                                }
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="Price" class="form-label">Price *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" id="Price" name="Price" class="form-control @(ViewData.ModelState["Price"]?.Errors?.Any() == true ? "is-invalid" : "")" 
+                                           min="0.01" step="0.01" required
+                                           value="@(Model?.Price > 0 ? Model.Price.ToString("0.00") : "")">
+                                    @if (ViewData.ModelState["Price"]?.Errors?.Any() == true)
+                                    {
+                                        <div class="invalid-feedback">
+                                            @ViewData.ModelState["Price"]?.Errors?.First().ErrorMessage
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        
+                                        <br /><small class="text-muted">Required field</small>
+                                    }
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="StockQuantity" class="form-label">Initial Stock *</label>
+                                <input type="number" id="StockQuantity" name="StockQuantity" 
+                                       class="form-control @(ViewData.ModelState["StockQuantity"]?.Errors?.Any() == true ? "is-invalid" : "")" 
+                                       min="0" value="@(Model?.StockQuantity ?? 0)" required>
+                                @if (ViewData.ModelState["StockQuantity"]?.Errors?.Any() == true)
+                                {
+                                    <div class="invalid-feedback">
+                                        @ViewData.ModelState["StockQuantity"]?.Errors?.First().ErrorMessage
+                                    </div>
+                                }
+                                else
+                                {
+                                    <small class="text-muted">Required field</small>
+                                }
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="MinStockLimit" class="form-label">Min Stock Limit *</label>
+                                <input type="number" id="MinStockLimit" name="MinStockLimit" 
+                                       class="form-control @(ViewData.ModelState["MinStockLimit"]?.Errors?.Any() == true ? "is-invalid" : "")" 
+                                       min="0" value="@(Model?.MinStockLimit ?? 10)" required>
+                                @if (ViewData.ModelState["MinStockLimit"]?.Errors?.Any() == true)
+                                {
+                                    <div class="invalid-feedback">
+                                        @ViewData.ModelState["MinStockLimit"]?.Errors?.First().ErrorMessage
+                                    </div>
+                                }
+                                else
+                                {
+                                    <small class="text-muted">Required field</small>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a href="/Admin/Product/Index" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-save me-2"></i> Create Product
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Image preview function
+        function previewImage(event) {
+            const reader = new FileReader();
+            const imagePreview = document.getElementById('imagePreview');
+            const previewImage = document.getElementById('previewImage');
+            
+            reader.onload = function() {
+                previewImage.src = reader.result;
+                imagePreview.style.display = 'block';
+            }
+            
+            if (event.target.files[0]) {
+                reader.readAsDataURL(event.target.files[0]);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('createForm');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            form.addEventListener('submit', function(e) {
+                // Clear previous error states
+                document.querySelectorAll('.is-invalid').forEach(el => {
+                    el.classList.remove('is-invalid');
+                });
+                
+                const nameInput = document.getElementById('Name');
+                const categorySelect = document.getElementById('CategoryId');
+                const supplierSelect = document.getElementById('SupplierId');
+                const priceInput = document.getElementById('Price');
+                const stockInput = document.getElementById('StockQuantity');
+                const minStockInput = document.getElementById('MinStockLimit');
+                const imageFile = document.getElementById('ImageFile');
+                const imageUrl = document.getElementById('ImageUrl');
+                
+                let hasError = false;
+                
+                // ✅ Validate required fields
+                if (!nameInput.value.trim()) {
+                    nameInput.classList.add('is-invalid');
+                    nameInput.focus();
+                    hasError = true;
+                }
+                
+                if (!categorySelect.value || categorySelect.value === '') {
+                    categorySelect.classList.add('is-invalid');
+                    if (!hasError) categorySelect.focus();
+                    hasError = true;
+                }
+                
+                if (!supplierSelect.value || supplierSelect.value === '') {
+                    supplierSelect.classList.add('is-invalid');
+                    if (!hasError) supplierSelect.focus();
+                    hasError = true;
+                }
+                
+                if (!priceInput.value || parseFloat(priceInput.value) <= 0) {
+                    priceInput.classList.add('is-invalid');
+                    if (!hasError) priceInput.focus();
+                    hasError = true;
+                }
+                
+                if (!stockInput.value || parseInt(stockInput.value) < 0) {
+                    stockInput.classList.add('is-invalid');
+                    if (!hasError) stockInput.focus();
+                    hasError = true;
+                }
+                
+                if (!minStockInput.value || parseInt(minStockInput.value) < 0) {
+                    minStockInput.classList.add('is-invalid');
+                    if (!hasError) minStockInput.focus();
+                    hasError = true;
+                }
+                
+                // ✅ Validate image: can't have both file and URL
+                const hasFile = imageFile.files.length > 0;
+                const hasUrl = imageUrl.value.trim() !== '';
+                
+                if (hasFile && hasUrl) {
+                    imageFile.classList.add('is-invalid');
+                    imageUrl.classList.add('is-invalid');
+                    if (!hasError) imageFile.focus();
+                    alert('Please choose only one: upload file OR enter URL, not both');
+                    hasError = true;
+                }
+                
+                if (hasError) {
+                    e.preventDefault();
+                    return false;
+                }
+                
+                // Show loading
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Creating...';
+                submitBtn.disabled = true;
+            });
+            
+            // Auto-focus
+            document.getElementById('Name').focus();
+            
+            // Clear validation on input
+            document.querySelectorAll('input, select, textarea').forEach(input => {
+                input.addEventListener('input', function() {
+                    this.classList.remove('is-invalid');
+                });
+                
+                // For select elements
+                if (input.tagName === 'SELECT') {
+                    input.addEventListener('change', function() {
+                        this.classList.remove('is-invalid');
+                    });
+                }
+            });
+            
+            // Preselect values if they exist in Model
+            @if (Model != null && Model.CategoryId > 0)
+            {
+                <text>
+                document.getElementById('CategoryId').value = @Model.CategoryId;
+                </text>
+            }
+            
+            @if (Model != null && Model.SupplierId > 0)
+            {
+                <text>
+                document.getElementById('SupplierId').value = @Model.SupplierId;
+                </text>
+            }
+        });
+    </script>
+}
