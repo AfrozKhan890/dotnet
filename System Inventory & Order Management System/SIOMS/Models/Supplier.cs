@@ -1,3 +1,6 @@
+// SIOMS/Models/Supplier.cs
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace SIOMS.Models
@@ -37,7 +40,7 @@ namespace SIOMS.Models
         public bool IsActive { get; set; } = true;
         
         // Navigation
-        public virtual ICollection<Product> Products { get; set; }
-        public virtual ICollection<PurchaseOrder> PurchaseOrders { get; set; }
+        public virtual ICollection<Product> Products { get; set; } = new List<Product>();
+        public virtual ICollection<PurchaseOrder> PurchaseOrders { get; set; } = new List<PurchaseOrder>();
     }
 }

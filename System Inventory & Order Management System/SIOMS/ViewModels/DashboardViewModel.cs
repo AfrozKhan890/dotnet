@@ -1,44 +1,56 @@
 using System;
 using System.Collections.Generic;
-using SIOMS.Models;  
 
 namespace SIOMS.ViewModels
 {
     public class DashboardViewModel
     {
-        // Summary Cards
+        // Summary
         public int TotalProducts { get; set; }
         public int TotalCategories { get; set; }
         public int TotalSuppliers { get; set; }
         public int TotalCustomers { get; set; }
+
+        // Stock
         public int LowStockItems { get; set; }
         public int OutOfStockItems { get; set; }
         public decimal TotalStockValue { get; set; }
+
+        // Orders
         public int PendingPurchaseOrders { get; set; }
         public int PendingSalesOrders { get; set; }
         public decimal TodaySales { get; set; }
-        
-        // Monthly Data
+
+        // Financial
+        public decimal MonthlyRevenue { get; set; }
+        public decimal MonthlyExpenses { get; set; }
+        public decimal ProfitMargin { get; set; }
+
+        // Charts
         public List<MonthlyData> MonthlySales { get; set; } = new List<MonthlyData>();
         public List<MonthlyData> MonthlyPurchases { get; set; } = new List<MonthlyData>();
-        
-        // Recent Data
+        public List<CategoryData> StockByCategory { get; set; } = new List<CategoryData>();
+
+        // Recent Activities
         public List<AlertViewModel> RecentAlerts { get; set; } = new List<AlertViewModel>();
-        public List<StockMovement> RecentStockMovements { get; set; } = new List<StockMovement>();
-        public List<TopProductViewModel> TopSellingProducts { get; set; } = new List<TopProductViewModel>();
-        
-        // Additional properties for charts
-        public List<string> CourseNames { get; set; } = new List<string>();
-        public List<int> StudentsPerCourse { get; set; } = new List<int>();
-        public List<int> MonthlyAdmissions { get; set; } = new List<int>();
-        public int UpcomingExams { get; set; } = 0;
+        public List<RecentOrder> RecentOrders { get; set; } = new List<RecentOrder>();
+        public List<RecentProduct> TopSellingProducts { get; set; } = new List<RecentProduct>();
+        public List<RecentStockMovement> RecentStockMovements { get; set; } = new List<RecentStockMovement>(); // Added
     }
 
     public class MonthlyData
     {
         public int Month { get; set; }
         public string MonthName { get; set; } = string.Empty;
-        public decimal Value { get; set; }
+        public decimal Sales { get; set; } // Use Sales instead of Value
+        public decimal Purchases { get; set; }
+    }
+
+    public class CategoryData
+    {
+        public string CategoryName { get; set; } = string.Empty;
+        public int ProductCount { get; set; }
+        public int TotalStock { get; set; }
     }
 
     public class AlertViewModel
@@ -48,37 +60,30 @@ namespace SIOMS.ViewModels
         public string Message { get; set; } = string.Empty;
         public string AlertType { get; set; } = string.Empty;
         public DateTime AlertDate { get; set; }
+        public bool IsResolved { get; set; }
     }
 
-    public class TopProductViewModel
+    public class RecentOrder
     {
-        public int ProductId { get; set; }
+        public string OrderNumber { get; set; } = string.Empty;
+        public string CustomerName { get; set; } = string.Empty;
+        public decimal Amount { get; set; }
+        public DateTime OrderDate { get; set; }
+        public string Status { get; set; } = string.Empty;
+    }
+
+    public class RecentProduct
+    {
         public string ProductName { get; set; } = string.Empty;
-        public int TotalSold { get; set; }
+        public int QuantitySold { get; set; } // Use QuantitySold
         public decimal Revenue { get; set; }
     }
-    
-    // Additional ViewModel classes for dashboard
-    public class Message
+
+    public class RecentStockMovement
     {
-        public string Name { get; set; } = string.Empty;
-        public string Subject { get; set; } = string.Empty;
-        public DateTime Date { get; set; }
-    }
-    
-    public class AdmissionVM
-    {
-        public string StudentName { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Course { get; set; } = string.Empty;
-        public DateTime AdmissionDate { get; set; }
-        public string Message { get; set; } = string.Empty;
-    }
-    
-    public class CourseViewModel
-    {
-        public string Name { get; set; } = string.Empty;
-        public int TopicsCount { get; set; }
-        public DateTime CreatedDate { get; set; }
+        public string? ProductName { get; set; }
+        public int Quantity { get; set; }
+        public string MovementType { get; set; } = string.Empty;
+        public DateTime MovementDate { get; set; }
     }
 }
