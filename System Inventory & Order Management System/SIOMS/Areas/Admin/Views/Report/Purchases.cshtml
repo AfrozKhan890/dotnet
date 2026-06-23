@@ -1,0 +1,127 @@
+@model IEnumerable<SIOMS.Models.PurchaseOrder>
+@{
+    ViewData["Title"] = "Purchase Report";
+    ViewData["Subtitle"] = "Purchase order analytics";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+@section HeaderButtons {
+    <a asp-area="Admin" asp-controller="Report" asp-action="Index" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i> Back to Reports
+    </a>
+    <button class="btn btn-success" onclick="window.print()">
+        <i class="fas fa-print me-2"></i> Print
+    </button>
+}
+
+<div class="container-fluid py-4">
+    <!-- Date Filter -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" asp-area="Admin" asp-controller="Report" asp-action="Purchases" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">From Date</label>
+                    <input type="date" name="fromDate" class="form-control" value="@ViewBag.FromDate">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">To Date</label>
+                    <input type="date" name="toDate" class="form-control" value="@ViewBag.ToDate">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter me-2"></i> Filter
+                    </button>
+                    <a asp-area="Admin" asp-controller="Report" asp-action="Purchases" class="btn btn-secondary ms-2">
+                        <i class="fas fa-redo"></i> Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Orders</h5>
+                    <h2>@Model.Count()</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Delivered</h5>
+                    <h2>@Model.Count(o => o.Status == "Delivered")</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Pending</h5>
+                    <h2>@Model.Count(o => o.Status == "Pending")</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Spent</h5>
+                    <h2>@Model.Where(o => o.Status == "Delivered").Sum(o => o.TotalAmount).ToString("C")</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Purchase Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">Purchase Orders</h5>
+        </div>
+        <div class="card-body">
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Order #</th>
+                                <th>Date</th>
+                                <th>Supplier</th>
+                                <th>Status</th>
+                                <th>Total</th>
+                                <th>Expected Delivery</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in Model)
+                            {
+                                <tr>
+                                    <td><strong>@order.OrderNumber</strong></td>
+                                    <td>@order.OrderDate.ToString("MMM dd, yyyy")</td>
+                                    <td>@(order.Supplier?.Name ?? "N/A")</td>
+                                    <td>
+                                        <span class="badge bg-@(order.Status == "Delivered" ? "success" : order.Status == "Pending" ? "warning" : "secondary")">
+                                            @order.Status
+                                        </span>
+                                    </td>
+                                    <td><strong>@order.TotalAmount.ToString("C")</strong></td>
+                                    <td>@(order.ExpectedDeliveryDate?.ToString("MMM dd, yyyy") ?? "N/A")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-truck fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No purchase orders found</h5>
+                </div>
+            }
+        </div>
+    </div>
+</div>

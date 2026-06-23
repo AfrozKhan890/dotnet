@@ -1,3 +1,4 @@
+@model SIOMS.ViewModels.ReportViewModel
 @{
     ViewData["Title"] = "Reports";
     ViewData["Subtitle"] = "Analytics and insights";
@@ -39,7 +40,7 @@
                         <div class="card border-start border-primary border-4">
                             <div class="card-body">
                                 <h6 class="text-muted mb-2">Total Sales</h6>
-                                <h3 class="mb-0">$12,450</h3>
+                                <h3 class="mb-0">@Model.TotalSales.ToString("C")</h3>
                                 <small class="text-success">
                                     <i class="fas fa-arrow-up me-1"></i> 12.5%
                                 </small>
@@ -50,7 +51,7 @@
                         <div class="card border-start border-success border-4">
                             <div class="card-body">
                                 <h6 class="text-muted mb-2">Orders</h6>
-                                <h3 class="mb-0">245</h3>
+                                <h3 class="mb-0">@Model.TotalOrders</h3>
                                 <small class="text-success">
                                     <i class="fas fa-arrow-up me-1"></i> 8.2%
                                 </small>
@@ -61,7 +62,7 @@
                         <div class="card border-start border-info border-4">
                             <div class="card-body">
                                 <h6 class="text-muted mb-2">Avg. Order</h6>
-                                <h3 class="mb-0">$50.82</h3>
+                                <h3 class="mb-0">@Model.AverageOrderValue.ToString("C")</h3>
                                 <small class="text-success">
                                     <i class="fas fa-arrow-up me-1"></i> 4.1%
                                 </small>
@@ -86,7 +87,7 @@
                         <div class="card border-start border-warning border-4">
                             <div class="card-body">
                                 <h6 class="text-muted mb-2">Low Stock Items</h6>
-                                <h3 class="mb-0">18</h3>
+                                <h3 class="mb-0">@Model.LowStockItems</h3>
                                 <small class="text-danger">
                                     <i class="fas fa-exclamation-triangle me-1"></i> Needs Attention
                                 </small>
@@ -97,7 +98,7 @@
                         <div class="card border-start border-danger border-4">
                             <div class="card-body">
                                 <h6 class="text-muted mb-2">Out of Stock</h6>
-                                <h3 class="mb-0">7</h3>
+                                <h3 class="mb-0">@Model.OutOfStockItems</h3>
                                 <small class="text-danger">
                                     <i class="fas fa-ban me-1"></i> Immediate Action
                                 </small>
@@ -210,7 +211,7 @@
                             <i class="fas fa-box text-danger me-2"></i>
                             <span>Products</span>
                         </div>
-                        <strong>567</strong>
+                        <strong>@Model.TotalProducts</strong>
                     </div>
                     <div class="list-group-item d-flex justify-content-between align-items-center">
                         <div>
@@ -231,13 +232,24 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Sales Chart
             const salesCtx = document.getElementById('salesChart').getContext('2d');
+            
+            // Data from Model - Safe serialization
+            var monthlySalesLabels = @Html.Raw(Json.Serialize(Model.MonthlySales?.Select(m => m.MonthName).ToList() ?? new List<string>()));
+            var monthlySalesData = @Html.Raw(Json.Serialize(Model.MonthlySales?.Select(m => m.Sales).ToList() ?? new List<decimal>()));
+            
+            // If no data, use default
+            if (monthlySalesLabels.length === 0) {
+                monthlySalesLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+                monthlySalesData = [12000, 19000, 15000, 22000, 18000, 12450];
+            }
+            
             new Chart(salesCtx, {
                 type: 'line',
                 data: {
-                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    labels: monthlySalesLabels,
                     datasets: [{
                         label: 'Sales ($)',
-                        data: [2800, 3200, 2950, 3500],
+                        data: monthlySalesData,
                         borderColor: '#4361ee',
                         backgroundColor: 'rgba(67, 97, 238, 0.1)',
                         fill: true,
@@ -257,7 +269,7 @@
                             beginAtZero: true,
                             ticks: {
                                 callback: function(value) {
-                                    return '$' + value;
+                                    return '$' + value.toLocaleString();
                                 }
                             }
                         }
@@ -267,12 +279,14 @@
 
             // Inventory Chart
             const inventoryCtx = document.getElementById('inventoryChart').getContext('2d');
+            var inStock = @Model.TotalProducts - @Model.LowStockItems - @Model.OutOfStockItems;
+            
             new Chart(inventoryCtx, {
                 type: 'doughnut',
                 data: {
                     labels: ['In Stock', 'Low Stock', 'Out of Stock'],
                     datasets: [{
-                        data: [542, 18, 7],
+                        data: [inStock, @Model.LowStockItems, @Model.OutOfStockItems],
                         backgroundColor: [
                             '#4cc9f0',
                             '#ff9e00',
@@ -297,7 +311,19 @@
                 this.disabled = true;
                 
                 setTimeout(() => {
-                    adminDashboard.showNotification('Report exported successfully!', 'success');
+                    // Simple notification
+                    var notification = document.createElement('div');
+                    notification.className = 'alert alert-success alert-dismissible fade show position-fixed top-0 end-0 m-3';
+                    notification.style.zIndex = '9999';
+                    notification.innerHTML = `
+                        <i class="fas fa-check-circle me-2"></i>
+                        Report exported successfully!
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    document.body.appendChild(notification);
+                    
+                    setTimeout(() => notification.remove(), 3000);
+                    
                     this.innerHTML = '<i class="fas fa-file-export me-2"></i> Export Data';
                     this.disabled = false;
                 }, 2000);

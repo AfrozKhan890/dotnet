@@ -6,10 +6,10 @@
 }
 
 @section HeaderButtons {
-    <a href="/Admin/Product/Index" class="btn btn-outline-secondary">
+    <a asp-area="Admin" asp-controller="Product" asp-action="Index" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-left me-2"></i> Back to Products
     </a>
-    <a href="/Admin/Product/Edit/@Model.Id" class="btn btn-primary">
+    <a asp-area="Admin" asp-controller="Product" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
         <i class="fas fa-edit me-2"></i> Edit
     </a>
     <button type="button" class="btn btn-warning stock-adjust-btn" 
@@ -17,7 +17,7 @@
             data-current="@Model.StockQuantity">
         <i class="fas fa-exchange-alt me-2"></i> Adjust Stock
     </button>
-    <a href="/Admin/Product/Delete/@Model.Id" class="btn btn-outline-danger delete-confirm">
+    <a asp-area="Admin" asp-controller="Product" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger delete-confirm">
         <i class="fas fa-trash me-2"></i> Delete
     </a>
 }

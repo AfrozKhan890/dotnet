@@ -6,10 +6,10 @@
 }
 
 @section HeaderButtons {
-    <a href="/Admin/Supplier/Index" class="btn btn-outline-secondary">
+    <a asp-area="Admin" asp-controller="Supplier" asp-action="Index" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-left me-2"></i> Back to List
     </a>
-    <a href="/Admin/Supplier/Edit/@Model.Id" class="btn btn-primary">
+    <a asp-area="Admin" asp-controller="Supplier" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
         <i class="fas fa-edit me-2"></i> Edit
     </a>
 }
