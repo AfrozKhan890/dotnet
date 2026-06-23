@@ -59,6 +59,9 @@ namespace SIOMS.Areas.Admin.Controllers
             catch (Exception ex)
             {
                 TempData["Error"] = $"Error loading products: {ex.Message}";
+                ViewBag.SearchFilter = search;
+                ViewBag.CategoryFilter = categoryId;
+                ViewBag.Categories = await _context.Categories.ToListAsync();
                 return View(new System.Collections.Generic.List<Product>());
             }
         }

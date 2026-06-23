@@ -12,15 +12,15 @@ using SIOMS.Data;
 namespace SIOMS.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260518105940_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260623100826_newCreate")]
+    partial class newCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.0")
+                .HasAnnotation("ProductVersion", "10.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -163,7 +163,6 @@ namespace SIOMS.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 

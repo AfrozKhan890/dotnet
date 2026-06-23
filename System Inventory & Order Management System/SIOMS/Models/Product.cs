@@ -15,7 +15,7 @@ namespace SIOMS.Models
         public string Name { get; set; }
         
         [StringLength(1000, ErrorMessage = "Description cannot exceed 1000 characters")]
-        public string Description { get; set; }
+        public string? Description { get; set; }
         
         [Required(ErrorMessage = "Category is required")]
         [Display(Name = "Category")]
