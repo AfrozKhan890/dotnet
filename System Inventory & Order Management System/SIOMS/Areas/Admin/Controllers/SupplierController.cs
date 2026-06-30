@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace SIOMS.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class SupplierController : Controller
+    public class SupplierController : AdminBaseController  // ✅ CHANGED: Inherits from AdminBaseController
     {
         private readonly ApplicationDbContext _context;
 
@@ -85,7 +85,7 @@ namespace SIOMS.Areas.Admin.Controllers
         // GET: /Admin/Supplier/Create
         public IActionResult Create()
         {
-            return View(new Supplier()); // Empty supplier for form
+            return View(new Supplier());
         }
 
         // POST: /Admin/Supplier/Create
@@ -101,7 +101,6 @@ namespace SIOMS.Areas.Admin.Controllers
                     return View(supplier);
                 }
 
-                // Trim inputs
                 supplier.Name = supplier.Name.Trim();
                 if (!string.IsNullOrWhiteSpace(supplier.ContactPerson))
                     supplier.ContactPerson = supplier.ContactPerson.Trim();
@@ -116,7 +115,6 @@ namespace SIOMS.Areas.Admin.Controllers
                 if (!string.IsNullOrWhiteSpace(supplier.PostalCode))
                     supplier.PostalCode = supplier.PostalCode.Trim();
 
-                // Check for duplicate email if provided
                 if (!string.IsNullOrWhiteSpace(supplier.Email))
                 {
                     bool emailExists = await _context.Suppliers
@@ -129,11 +127,9 @@ namespace SIOMS.Areas.Admin.Controllers
                     }
                 }
 
-                // Set default values
                 supplier.CreatedAt = DateTime.Now;
                 supplier.IsActive = true;
                 
-                // Save
                 _context.Suppliers.Add(supplier);
                 await _context.SaveChangesAsync();
 
@@ -194,7 +190,6 @@ namespace SIOMS.Areas.Admin.Controllers
                     return View(supplier);
                 }
 
-                // Trim inputs
                 supplier.Name = supplier.Name.Trim();
                 if (!string.IsNullOrWhiteSpace(supplier.ContactPerson))
                     supplier.ContactPerson = supplier.ContactPerson.Trim();
@@ -209,7 +204,6 @@ namespace SIOMS.Areas.Admin.Controllers
                 if (!string.IsNullOrWhiteSpace(supplier.PostalCode))
                     supplier.PostalCode = supplier.PostalCode.Trim();
 
-                // Get existing supplier
                 var existingSupplier = await _context.Suppliers.FindAsync(id);
                 if (existingSupplier == null)
                 {
@@ -217,7 +211,6 @@ namespace SIOMS.Areas.Admin.Controllers
                     return RedirectToAction("Index");
                 }
 
-                // Check for duplicate email (excluding current supplier)
                 if (!string.IsNullOrWhiteSpace(supplier.Email) && 
                     existingSupplier.Email?.ToLower() != supplier.Email.ToLower())
                 {
@@ -231,7 +224,6 @@ namespace SIOMS.Areas.Admin.Controllers
                     }
                 }
 
-                // Update properties
                 existingSupplier.Name = supplier.Name;
                 existingSupplier.ContactPerson = supplier.ContactPerson;
                 existingSupplier.Email = supplier.Email;
@@ -309,7 +301,6 @@ namespace SIOMS.Areas.Admin.Controllers
                     return RedirectToAction("Index");
                 }
 
-                // Check if supplier has related records
                 if (supplier.Products.Any() || supplier.PurchaseOrders.Any())
                 {
                     TempData["Error"] = $"Cannot delete supplier '{supplier.Name}' because it has related records.";

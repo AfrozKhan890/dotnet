@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace SIOMS.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class OrderController : Controller
+    public class OrderController : AdminBaseController
     {
         private readonly ApplicationDbContext _context;
 
@@ -47,7 +47,7 @@ namespace SIOMS.Areas.Admin.Controllers
             ViewBag.StatusFilter = status;
             ViewBag.FromDate = fromDate?.ToString("yyyy-MM-dd");
             ViewBag.ToDate = toDate?.ToString("yyyy-MM-dd");
-            
+
             return View(await orders.OrderByDescending(po => po.OrderDate).ToListAsync());
         }
 
@@ -78,7 +78,6 @@ namespace SIOMS.Areas.Admin.Controllers
                 .ToList();
             ViewBag.Products = _context.Products
                 .Include(p => p.Category)
-                .Where(p => p.StockQuantity > 0)
                 .OrderBy(p => p.Name)
                 .ToList();
 
@@ -95,13 +94,77 @@ namespace SIOMS.Areas.Admin.Controllers
         // POST: Admin/Order/CreatePurchaseOrder
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreatePurchaseOrder(PurchaseOrder order, List<PurchaseOrderItem> items)
+        public async Task<IActionResult> CreatePurchaseOrder(PurchaseOrder order, [FromForm] List<PurchaseOrderItem> items)
         {
-            if (ModelState.IsValid && items != null && items.Any())
+            try
             {
+                // ✅ FIX: Remove ALL navigation properties from ModelState
+                ModelState.Remove("Supplier");
+                ModelState.Remove("Items");
+                ModelState.Remove("StockMovements");
+                ModelState.Remove("PurchaseOrder");  // ✅ FROM PurchaseOrderItem
+                ModelState.Remove("Product");        // ✅ FROM PurchaseOrderItem
+
+                // ✅ Also remove from individual items if they exist in ModelState
+                if (items != null)
+                {
+                    for (int i = 0; i < items.Count; i++)
+                    {
+                        ModelState.Remove($"items[{i}].PurchaseOrder");
+                        ModelState.Remove($"items[{i}].Product");
+                    }
+                }
+
+                if (order.SupplierId <= 0)
+                {
+                    ModelState.AddModelError("SupplierId", "Please select a supplier");
+                }
+
+                if (items == null || !items.Any())
+                {
+                    ModelState.AddModelError("", "Please add at least one item to the order");
+                }
+
+                // Validate items
+                if (items != null && items.Any())
+                {
+                    foreach (var item in items)
+                    {
+                        if (item.ProductId <= 0)
+                        {
+                            ModelState.AddModelError("", "Please select a product for all items");
+                            break;
+                        }
+                        if (item.Quantity <= 0)
+                        {
+                            ModelState.AddModelError("", "Quantity must be greater than 0");
+                            break;
+                        }
+                        if (item.UnitPrice <= 0)
+                        {
+                            ModelState.AddModelError("", "Unit price must be greater than 0");
+                            break;
+                        }
+                    }
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    ViewBag.Suppliers = _context.Suppliers
+                        .Where(s => s.IsActive)
+                        .OrderBy(s => s.Name)
+                        .ToList();
+                    ViewBag.Products = _context.Products
+                        .Include(p => p.Category)
+                        .OrderBy(p => p.Name)
+                        .ToList();
+                    return View(order);
+                }
+
                 // Calculate total
                 order.TotalAmount = items.Sum(i => i.Quantity * i.UnitPrice);
                 order.CreatedAt = DateTime.Now;
+                order.Status = "Pending";
 
                 _context.PurchaseOrders.Add(order);
                 await _context.SaveChangesAsync();
@@ -115,66 +178,73 @@ namespace SIOMS.Areas.Admin.Controllers
                 }
 
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "Purchase order created successfully!";
+
+                TempData["Success"] = $"Purchase order #{order.OrderNumber} created successfully!";
                 return RedirectToAction(nameof(PurchaseOrders));
             }
-
-            ViewBag.Suppliers = _context.Suppliers
-                .Where(s => s.IsActive)
-                .OrderBy(s => s.Name)
-                .ToList();
-            ViewBag.Products = _context.Products
-                .Include(p => p.Category)
-                .Where(p => p.StockQuantity > 0)
-                .OrderBy(p => p.Name)
-                .ToList();
-
-            return View(order);
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error creating purchase order: {ex.Message}";
+                ViewBag.Suppliers = _context.Suppliers
+                    .Where(s => s.IsActive)
+                    .OrderBy(s => s.Name)
+                    .ToList();
+                ViewBag.Products = _context.Products
+                    .Include(p => p.Category)
+                    .OrderBy(p => p.Name)
+                    .ToList();
+                return View(order);
+            }
         }
 
         // POST: Admin/Order/UpdatePurchaseOrderStatus/5
         [HttpPost]
         public async Task<IActionResult> UpdatePurchaseOrderStatus(int id, [FromBody] StatusUpdateModel model)
         {
-            var order = await _context.PurchaseOrders
-                .Include(po => po.Items)
-                .FirstOrDefaultAsync(po => po.Id == id);
-
-            if (order == null)
-                return Json(new { success = false, message = "Order not found" });
-
-            order.Status = model.Status;
-            order.UpdatedAt = DateTime.Now;
-
-            // If delivered, update stock
-            if (model.Status == "Delivered")
+            try
             {
-                foreach (var item in order.Items)
-                {
-                    var product = await _context.Products.FindAsync(item.ProductId);
-                    if (product != null)
-                    {
-                        int oldStock = product.StockQuantity;
-                        product.StockQuantity += item.Quantity;
-                        product.UpdatedAt = DateTime.Now;
+                var order = await _context.PurchaseOrders
+                    .Include(po => po.Items)
+                    .FirstOrDefaultAsync(po => po.Id == id);
 
-                        // Record stock movement
-                        var movement = new StockMovement
+                if (order == null)
+                    return Json(new { success = false, message = "Order not found" });
+
+                order.Status = model.Status;
+                order.UpdatedAt = DateTime.Now;
+
+                if (model.Status == "Delivered")
+                {
+                    foreach (var item in order.Items)
+                    {
+                        var product = await _context.Products.FindAsync(item.ProductId);
+                        if (product != null)
                         {
-                            ProductId = product.Id,
-                            Quantity = item.Quantity,
-                            MovementType = "Purchase",
-                            ReferenceNumber = order.OrderNumber,
-                            Notes = $"Purchase order #{order.OrderNumber}"
-                        };
-                        _context.StockMovements.Add(movement);
-                        _context.Products.Update(product);
+                            product.StockQuantity += item.Quantity;
+                            product.UpdatedAt = DateTime.Now;
+
+                            var movement = new StockMovement
+                            {
+                                ProductId = product.Id,
+                                Quantity = item.Quantity,
+                                MovementType = "Purchase",
+                                ReferenceNumber = order.OrderNumber,
+                                Notes = $"Purchase order #{order.OrderNumber}",
+                                MovementDate = DateTime.Now
+                            };
+                            _context.StockMovements.Add(movement);
+                            _context.Products.Update(product);
+                        }
                     }
                 }
-            }
 
-            await _context.SaveChangesAsync();
-            return Json(new { success = true, message = $"Order status updated to {model.Status}" });
+                await _context.SaveChangesAsync();
+                return Json(new { success = true, message = $"Order status updated to {model.Status}" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error: {ex.Message}" });
+            }
         }
 
         // GET: Admin/Order/EditPurchaseOrder/5
@@ -189,6 +259,12 @@ namespace SIOMS.Areas.Admin.Controllers
 
             if (order == null)
                 return NotFound();
+
+            if (order.Status == "Delivered" || order.Status == "Cancelled")
+            {
+                TempData["Error"] = $"Cannot edit {order.Status} order.";
+                return RedirectToAction(nameof(PurchaseOrders));
+            }
 
             ViewBag.Suppliers = _context.Suppliers
                 .Where(s => s.IsActive)
@@ -205,55 +281,102 @@ namespace SIOMS.Areas.Admin.Controllers
         // POST: Admin/Order/EditPurchaseOrder/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditPurchaseOrder(int id, PurchaseOrder order, List<PurchaseOrderItem> items)
+        public async Task<IActionResult> EditPurchaseOrder(int id, PurchaseOrder order, [FromForm] List<PurchaseOrderItem> items)
         {
             if (id != order.Id)
                 return NotFound();
 
-            if (ModelState.IsValid && items != null && items.Any())
+            try
             {
-                try
+                // ✅ FIX: Remove ALL navigation properties from ModelState
+                ModelState.Remove("Supplier");
+                ModelState.Remove("Items");
+                ModelState.Remove("StockMovements");
+                ModelState.Remove("PurchaseOrder");
+                ModelState.Remove("Product");
+
+                if (items != null)
                 {
-                    // Remove existing items
-                    var existingItems = _context.PurchaseOrderItems.Where(i => i.PurchaseOrderId == id);
-                    _context.PurchaseOrderItems.RemoveRange(existingItems);
-
-                    // Update order
-                    order.UpdatedAt = DateTime.Now;
-                    order.TotalAmount = items.Sum(i => i.Quantity * i.UnitPrice);
-                    _context.Update(order);
-
-                    // Add new items
-                    foreach (var item in items)
+                    for (int i = 0; i < items.Count; i++)
                     {
-                        item.PurchaseOrderId = order.Id;
-                        item.TotalPrice = item.Quantity * item.UnitPrice;
-                        _context.PurchaseOrderItems.Add(item);
+                        ModelState.Remove($"items[{i}].PurchaseOrder");
+                        ModelState.Remove($"items[{i}].Product");
                     }
+                }
 
-                    await _context.SaveChangesAsync();
-                    TempData["Success"] = "Purchase order updated successfully!";
-                }
-                catch (DbUpdateConcurrencyException)
+                if (order.SupplierId <= 0)
                 {
-                    if (!PurchaseOrderExists(order.Id))
-                        return NotFound();
-                    else
-                        throw;
+                    ModelState.AddModelError("SupplierId", "Please select a supplier");
                 }
+
+                if (items == null || !items.Any())
+                {
+                    ModelState.AddModelError("", "Please add at least one item to the order");
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    ViewBag.Suppliers = _context.Suppliers
+                        .Where(s => s.IsActive)
+                        .OrderBy(s => s.Name)
+                        .ToList();
+                    ViewBag.Products = _context.Products
+                        .Include(p => p.Category)
+                        .OrderBy(p => p.Name)
+                        .ToList();
+                    return View(order);
+                }
+
+                var existingOrder = await _context.PurchaseOrders
+                    .Include(po => po.Items)
+                    .FirstOrDefaultAsync(po => po.Id == id);
+
+                if (existingOrder == null)
+                    return NotFound();
+
+                // Remove existing items
+                if (existingOrder.Items != null && existingOrder.Items.Any())
+                {
+                    _context.PurchaseOrderItems.RemoveRange(existingOrder.Items);
+                }
+
+                // Update order
+                existingOrder.SupplierId = order.SupplierId;
+                existingOrder.OrderDate = order.OrderDate;
+                existingOrder.ExpectedDeliveryDate = order.ExpectedDeliveryDate;
+                existingOrder.Status = order.Status;
+                existingOrder.Notes = order.Notes;
+                existingOrder.UpdatedAt = DateTime.Now;
+                existingOrder.TotalAmount = items.Sum(i => i.Quantity * i.UnitPrice);
+
+                _context.Update(existingOrder);
+
+                // Add new items
+                foreach (var item in items)
+                {
+                    item.PurchaseOrderId = existingOrder.Id;
+                    item.TotalPrice = item.Quantity * item.UnitPrice;
+                    _context.PurchaseOrderItems.Add(item);
+                }
+
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = $"Purchase order #{existingOrder.OrderNumber} updated successfully!";
                 return RedirectToAction(nameof(PurchaseOrders));
             }
-
-            ViewBag.Suppliers = _context.Suppliers
-                .Where(s => s.IsActive)
-                .OrderBy(s => s.Name)
-                .ToList();
-            ViewBag.Products = _context.Products
-                .Include(p => p.Category)
-                .OrderBy(p => p.Name)
-                .ToList();
-
-            return View(order);
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error updating purchase order: {ex.Message}";
+                ViewBag.Suppliers = _context.Suppliers
+                    .Where(s => s.IsActive)
+                    .OrderBy(s => s.Name)
+                    .ToList();
+                ViewBag.Products = _context.Products
+                    .Include(p => p.Category)
+                    .OrderBy(p => p.Name)
+                    .ToList();
+                return View(order);
+            }
         }
 
         // GET: Admin/Order/DeletePurchaseOrder/5
@@ -270,6 +393,12 @@ namespace SIOMS.Areas.Admin.Controllers
             if (order == null)
                 return NotFound();
 
+            if (order.Status == "Delivered")
+            {
+                TempData["Error"] = "Cannot delete delivered purchase order.";
+                return RedirectToAction(nameof(PurchaseOrders));
+            }
+
             return View(order);
         }
 
@@ -278,26 +407,37 @@ namespace SIOMS.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeletePurchaseOrderConfirmed(int id)
         {
-            var order = await _context.PurchaseOrders.FindAsync(id);
-            if (order == null)
-                return NotFound();
-
-            if (order.Status == "Delivered")
+            try
             {
-                TempData["Error"] = "Cannot delete delivered purchase order.";
+                var order = await _context.PurchaseOrders
+                    .Include(po => po.Items)
+                    .FirstOrDefaultAsync(po => po.Id == id);
+
+                if (order == null)
+                    return NotFound();
+
+                if (order.Status == "Delivered")
+                {
+                    TempData["Error"] = "Cannot delete delivered purchase order.";
+                    return RedirectToAction(nameof(PurchaseOrders));
+                }
+
+                if (order.Items != null && order.Items.Any())
+                {
+                    _context.PurchaseOrderItems.RemoveRange(order.Items);
+                }
+
+                _context.PurchaseOrders.Remove(order);
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = $"Purchase order #{order.OrderNumber} deleted successfully!";
                 return RedirectToAction(nameof(PurchaseOrders));
             }
-
-            // Remove related items
-            var items = _context.PurchaseOrderItems.Where(i => i.PurchaseOrderId == id);
-            _context.PurchaseOrderItems.RemoveRange(items);
-
-            // Remove order
-            _context.PurchaseOrders.Remove(order);
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] = "Purchase order deleted successfully!";
-            return RedirectToAction(nameof(PurchaseOrders));
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error deleting purchase order: {ex.Message}";
+                return RedirectToAction(nameof(PurchaseOrders));
+            }
         }
 
         // ========== SALES ORDERS ==========
@@ -328,7 +468,7 @@ namespace SIOMS.Areas.Admin.Controllers
             ViewBag.StatusFilter = status;
             ViewBag.FromDate = fromDate?.ToString("yyyy-MM-dd");
             ViewBag.ToDate = toDate?.ToString("yyyy-MM-dd");
-            
+
             return View(await orders.OrderByDescending(so => so.OrderDate).ToListAsync());
         }
 
@@ -359,7 +499,6 @@ namespace SIOMS.Areas.Admin.Controllers
                 .ToList();
             ViewBag.Products = _context.Products
                 .Include(p => p.Category)
-                .Where(p => p.StockQuantity > 0)
                 .OrderBy(p => p.Name)
                 .ToList();
 
@@ -374,131 +513,203 @@ namespace SIOMS.Areas.Admin.Controllers
             return View(order);
         }
 
-        // POST: Admin/Order/CreateSalesOrder
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateSalesOrder(SalesOrder order, List<SalesOrderItem> items)
+      // POST: Admin/Order/CreateSalesOrder
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> CreateSalesOrder(SalesOrder order, [FromForm] List<SalesOrderItem> items)
+{
+    try
+    {
+        // Remove navigation properties from ModelState
+        ModelState.Remove("Customer");
+        ModelState.Remove("Items");
+        ModelState.Remove("StockMovements");
+        ModelState.Remove("SalesOrder");
+        ModelState.Remove("Product");
+
+        if (items != null)
         {
-            if (ModelState.IsValid && items != null && items.Any())
+            for (int i = 0; i < items.Count; i++)
             {
-                // Check stock availability
-                foreach (var item in items)
-                {
-                    var product = await _context.Products.FindAsync(item.ProductId);
-                    if (product == null || product.StockQuantity < item.Quantity)
-                    {
-                        ModelState.AddModelError("", $"Insufficient stock for {product?.Name}");
-                        ViewBag.Customers = _context.Customers
-                            .Where(c => c.IsActive)
-                            .OrderBy(c => c.Name)
-                            .ToList();
-                        ViewBag.Products = _context.Products
-                            .Include(p => p.Category)
-                            .Where(p => p.StockQuantity > 0)
-                            .OrderBy(p => p.Name)
-                            .ToList();
-                        return View(order);
-                    }
-                }
-
-                // Calculate totals
-                decimal subtotal = items.Sum(i => i.Quantity * i.UnitPrice);
-                decimal discount = subtotal * (order.DiscountPercentage / 100);
-                order.TotalAmount = subtotal - discount;
-                order.GrandTotal = order.TotalAmount + order.TaxAmount;
-                order.CreatedAt = DateTime.Now;
-
-                _context.SalesOrders.Add(order);
-                await _context.SaveChangesAsync();
-
-                // Add items and update stock
-                foreach (var item in items)
-                {
-                    item.SalesOrderId = order.Id;
-                    item.TotalPrice = item.Quantity * item.UnitPrice;
-                    _context.SalesOrderItems.Add(item);
-
-                    // Update product stock
-                    var product = await _context.Products.FindAsync(item.ProductId);
-                    int oldStock = product.StockQuantity;
-                    product.StockQuantity -= item.Quantity;
-                    product.UpdatedAt = DateTime.Now;
-
-                    // Record stock movement
-                    var movement = new StockMovement
-                    {
-                        ProductId = product.Id,
-                        Quantity = -item.Quantity, // Negative for sales
-                        MovementType = "Sale",
-                        ReferenceNumber = order.OrderNumber,
-                        Notes = $"Sales order #{order.OrderNumber}"
-                    };
-                    _context.StockMovements.Add(movement);
-                    _context.Products.Update(product);
-                }
-
-                await _context.SaveChangesAsync();
-                TempData["Success"] = "Sales order created successfully!";
-                return RedirectToAction(nameof(SalesOrders));
+                ModelState.Remove($"items[{i}].SalesOrder");
+                ModelState.Remove($"items[{i}].Product");
             }
+        }
 
+        if (order.CustomerId <= 0)
+        {
+            ModelState.AddModelError("CustomerId", "Please select a customer");
+        }
+
+        if (items == null || !items.Any())
+        {
+            ModelState.AddModelError("", "Please add at least one item to the order");
+        }
+
+        // Validate items and stock
+        if (items != null && items.Any())
+        {
+            foreach (var item in items)
+            {
+                if (item.ProductId <= 0)
+                {
+                    ModelState.AddModelError("", "Please select a product for all items");
+                    break;
+                }
+                if (item.Quantity <= 0)
+                {
+                    ModelState.AddModelError("", "Quantity must be greater than 0");
+                    break;
+                }
+                if (item.UnitPrice <= 0)
+                {
+                    ModelState.AddModelError("", "Unit price must be greater than 0");
+                    break;
+                }
+
+                var product = await _context.Products.FindAsync(item.ProductId);
+                if (product != null && product.StockQuantity < item.Quantity)
+                {
+                    ModelState.AddModelError("", $"Insufficient stock for {product.Name}. Available: {product.StockQuantity}");
+                    break;
+                }
+            }
+        }
+
+        if (!ModelState.IsValid)
+        {
             ViewBag.Customers = _context.Customers
                 .Where(c => c.IsActive)
                 .OrderBy(c => c.Name)
                 .ToList();
             ViewBag.Products = _context.Products
                 .Include(p => p.Category)
-                .Where(p => p.StockQuantity > 0)
                 .OrderBy(p => p.Name)
                 .ToList();
-
             return View(order);
         }
 
-        // POST: Admin/Order/UpdateSalesOrderStatus/5
-        [HttpPost]
-        public async Task<IActionResult> UpdateSalesOrderStatus(int id, [FromBody] StatusUpdateModel model)
+        // Calculate totals
+        decimal subtotal = items.Sum(i => i.Quantity * i.UnitPrice);
+        decimal discount = subtotal * (order.DiscountPercentage / 100);
+        order.TotalAmount = subtotal - discount;
+        order.GrandTotal = order.TotalAmount + order.TaxAmount;
+        order.CreatedAt = DateTime.Now;
+        order.Status = "Pending";  // ✅ Default status is Pending
+
+        _context.SalesOrders.Add(order);
+        await _context.SaveChangesAsync();
+
+        // ✅ FIX: ONLY deduct stock when status is Processing or Completed
+        // Stock should NOT be deducted for Pending orders
+        // For Pending, we only save the order without affecting stock
+        
+        // Add items (without stock deduction for Pending)
+        foreach (var item in items)
         {
-            var order = await _context.SalesOrders
-                .Include(so => so.Items)
-                .FirstOrDefaultAsync(so => so.Id == id);
-
-            if (order == null)
-                return Json(new { success = false, message = "Order not found" });
-
-            // If cancelling completed order, restore stock
-            if (order.Status == "Completed" && model.Status == "Cancelled")
-            {
-                foreach (var item in order.Items)
-                {
-                    var product = await _context.Products.FindAsync(item.ProductId);
-                    if (product != null)
-                    {
-                        product.StockQuantity += item.Quantity;
-                        product.UpdatedAt = DateTime.Now;
-
-                        // Record stock movement
-                        var movement = new StockMovement
-                        {
-                            ProductId = product.Id,
-                            Quantity = item.Quantity, // Positive for cancellation
-                            MovementType = "Return",
-                            ReferenceNumber = order.OrderNumber,
-                            Notes = $"Order cancellation #{order.OrderNumber}"
-                        };
-                        _context.StockMovements.Add(movement);
-                        _context.Products.Update(product);
-                    }
-                }
-            }
-
-            order.Status = model.Status;
-            order.UpdatedAt = DateTime.Now;
-            await _context.SaveChangesAsync();
-
-            return Json(new { success = true, message = $"Order status updated to {model.Status}" });
+            item.SalesOrderId = order.Id;
+            item.TotalPrice = item.Quantity * item.UnitPrice;
+            _context.SalesOrderItems.Add(item);
         }
 
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = $"Sales order #{order.OrderNumber} created successfully!";
+        return RedirectToAction(nameof(SalesOrders));
+    }
+    catch (Exception ex)
+    {
+        TempData["Error"] = $"Error creating sales order: {ex.Message}";
+        ViewBag.Customers = _context.Customers
+            .Where(c => c.IsActive)
+            .OrderBy(c => c.Name)
+            .ToList();
+        ViewBag.Products = _context.Products
+            .Include(p => p.Category)
+            .OrderBy(p => p.Name)
+            .ToList();
+        return View(order);
+    }
+}
+        // POST: Admin/Order/UpdateSalesOrderStatus/5
+[HttpPost]
+public async Task<IActionResult> UpdateSalesOrderStatus(int id, [FromBody] StatusUpdateModel model)
+{
+    try
+    {
+        var order = await _context.SalesOrders
+            .Include(so => so.Items)
+            .FirstOrDefaultAsync(so => so.Id == id);
+
+        if (order == null)
+            return Json(new { success = false, message = "Order not found" });
+
+        // ✅ FIX: Only check stock when moving from Pending to Processing/Completed
+        // Stock is already deducted at creation time, so we don't need to check again
+        
+        // If cancelling completed order, restore stock
+        if (order.Status == "Completed" && model.Status == "Cancelled")
+        {
+            foreach (var item in order.Items)
+            {
+                var product = await _context.Products.FindAsync(item.ProductId);
+                if (product != null)
+                {
+                    product.StockQuantity += item.Quantity;
+                    product.UpdatedAt = DateTime.Now;
+
+                    var movement = new StockMovement
+                    {
+                        ProductId = product.Id,
+                        Quantity = item.Quantity,
+                        MovementType = "Return",
+                        ReferenceNumber = order.OrderNumber,
+                        Notes = $"Order cancellation #{order.OrderNumber}",
+                        MovementDate = DateTime.Now
+                    };
+                    _context.StockMovements.Add(movement);
+                    _context.Products.Update(product);
+                }
+            }
+        }
+
+        // ✅ FIX: If moving from Pending to Cancelled, restore stock
+        if (order.Status == "Pending" && model.Status == "Cancelled")
+        {
+            foreach (var item in order.Items)
+            {
+                var product = await _context.Products.FindAsync(item.ProductId);
+                if (product != null)
+                {
+                    product.StockQuantity += item.Quantity;
+                    product.UpdatedAt = DateTime.Now;
+
+                    var movement = new StockMovement
+                    {
+                        ProductId = product.Id,
+                        Quantity = item.Quantity,
+                        MovementType = "Return",
+                        ReferenceNumber = order.OrderNumber,
+                        Notes = $"Order cancellation #{order.OrderNumber}",
+                        MovementDate = DateTime.Now
+                    };
+                    _context.StockMovements.Add(movement);
+                    _context.Products.Update(product);
+                }
+            }
+        }
+
+        order.Status = model.Status;
+        order.UpdatedAt = DateTime.Now;
+        await _context.SaveChangesAsync();
+
+        return Json(new { success = true, message = $"Order status updated to {model.Status}" });
+    }
+    catch (Exception ex)
+    {
+        return Json(new { success = false, message = $"Error: {ex.Message}" });
+    }
+}
         // GET: Admin/Order/EditSalesOrder/5
         public async Task<IActionResult> EditSalesOrder(int? id)
         {
@@ -512,9 +723,9 @@ namespace SIOMS.Areas.Admin.Controllers
             if (order == null)
                 return NotFound();
 
-            if (order.Status == "Completed")
+            if (order.Status == "Completed" || order.Status == "Cancelled")
             {
-                TempData["Error"] = "Cannot edit completed order.";
+                TempData["Error"] = $"Cannot edit {order.Status} order.";
                 return RedirectToAction(nameof(SalesOrders));
             }
 
@@ -533,29 +744,68 @@ namespace SIOMS.Areas.Admin.Controllers
         // POST: Admin/Order/EditSalesOrder/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditSalesOrder(int id, SalesOrder order, List<SalesOrderItem> items)
+        public async Task<IActionResult> EditSalesOrder(int id, SalesOrder order, [FromForm] List<SalesOrderItem> items)
         {
             if (id != order.Id)
                 return NotFound();
 
-            var existingOrder = await _context.SalesOrders
-                .Include(so => so.Items)
-                .FirstOrDefaultAsync(so => so.Id == id);
-
-            if (existingOrder == null)
-                return NotFound();
-
-            if (existingOrder.Status == "Completed")
+            try
             {
-                TempData["Error"] = "Cannot edit completed order.";
-                return RedirectToAction(nameof(SalesOrders));
-            }
+                var existingOrder = await _context.SalesOrders
+                    .Include(so => so.Items)
+                    .FirstOrDefaultAsync(so => so.Id == id);
 
-            if (ModelState.IsValid && items != null && items.Any())
-            {
-                try
+                if (existingOrder == null)
+                    return NotFound();
+
+                if (existingOrder.Status == "Completed" || existingOrder.Status == "Cancelled")
                 {
-                    // Restore old stock quantities
+                    TempData["Error"] = $"Cannot edit {existingOrder.Status} order.";
+                    return RedirectToAction(nameof(SalesOrders));
+                }
+
+                // ✅ FIX: Remove ALL navigation properties from ModelState
+                ModelState.Remove("Customer");
+                ModelState.Remove("Items");
+                ModelState.Remove("StockMovements");
+                ModelState.Remove("SalesOrder");
+                ModelState.Remove("Product");
+
+                if (items != null)
+                {
+                    for (int i = 0; i < items.Count; i++)
+                    {
+                        ModelState.Remove($"items[{i}].SalesOrder");
+                        ModelState.Remove($"items[{i}].Product");
+                    }
+                }
+
+                if (order.CustomerId <= 0)
+                {
+                    ModelState.AddModelError("CustomerId", "Please select a customer");
+                }
+
+                if (items == null || !items.Any())
+                {
+                    ModelState.AddModelError("", "Please add at least one item to the order");
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    ViewBag.Customers = _context.Customers
+                        .Where(c => c.IsActive)
+                        .OrderBy(c => c.Name)
+                        .ToList();
+                    ViewBag.Products = _context.Products
+                        .Include(p => p.Category)
+                        .OrderBy(p => p.Name)
+                        .ToList();
+                    return View(order);
+                }
+
+                // Restore old stock quantities
+                if (existingOrder.Items != null && existingOrder.Items.Any())
+                {
                     foreach (var oldItem in existingOrder.Items)
                     {
                         var product = await _context.Products.FindAsync(oldItem.ProductId);
@@ -566,115 +816,88 @@ namespace SIOMS.Areas.Admin.Controllers
                         }
                     }
 
-                    // Remove existing items
                     _context.SalesOrderItems.RemoveRange(existingOrder.Items);
+                }
 
-                    // Check new stock availability
-                    foreach (var newItem in items)
+                // Check new stock availability
+                foreach (var newItem in items)
+                {
+                    var product = await _context.Products.FindAsync(newItem.ProductId);
+                    if (product != null && product.StockQuantity < newItem.Quantity)
                     {
-                        var product = await _context.Products.FindAsync(newItem.ProductId);
-                        if (product == null || product.StockQuantity < newItem.Quantity)
-                        {
-                            // Restore original items and stock
-                            await RestoreOriginalOrder(existingOrder);
-                            
-                            ModelState.AddModelError("", $"Insufficient stock for {product?.Name}");
-                            ViewBag.Customers = _context.Customers
-                                .Where(c => c.IsActive)
-                                .OrderBy(c => c.Name)
-                                .ToList();
-                            ViewBag.Products = _context.Products
-                                .Include(p => p.Category)
-                                .Where(p => p.StockQuantity > 0)
-                                .OrderBy(p => p.Name)
-                                .ToList();
-                            return View(order);
-                        }
+                        ModelState.AddModelError("", $"Insufficient stock for {product.Name}. Available: {product.StockQuantity}");
+                        ViewBag.Customers = _context.Customers
+                            .Where(c => c.IsActive)
+                            .OrderBy(c => c.Name)
+                            .ToList();
+                        ViewBag.Products = _context.Products
+                            .Include(p => p.Category)
+                            .OrderBy(p => p.Name)
+                            .ToList();
+                        return View(order);
                     }
+                }
 
-                    // Update order
-                    existingOrder.CustomerId = order.CustomerId;
-                    existingOrder.OrderDate = order.OrderDate;
-                    existingOrder.Status = order.Status;
-                    existingOrder.DiscountPercentage = order.DiscountPercentage;
-                    existingOrder.TaxAmount = order.TaxAmount;
-                    existingOrder.Notes = order.Notes;
-                    existingOrder.UpdatedAt = DateTime.Now;
+                // Update order
+                existingOrder.CustomerId = order.CustomerId;
+                existingOrder.OrderDate = order.OrderDate;
+                existingOrder.Status = order.Status;
+                existingOrder.DiscountPercentage = order.DiscountPercentage;
+                existingOrder.TaxAmount = order.TaxAmount;
+                existingOrder.Notes = order.Notes;
+                existingOrder.UpdatedAt = DateTime.Now;
 
-                    // Calculate totals
-                    decimal subtotal = items.Sum(i => i.Quantity * i.UnitPrice);
-                    decimal discount = subtotal * (order.DiscountPercentage / 100);
-                    existingOrder.TotalAmount = subtotal - discount;
-                    existingOrder.GrandTotal = existingOrder.TotalAmount + order.TaxAmount;
+                decimal subtotal = items.Sum(i => i.Quantity * i.UnitPrice);
+                decimal discount = subtotal * (order.DiscountPercentage / 100);
+                existingOrder.TotalAmount = subtotal - discount;
+                existingOrder.GrandTotal = existingOrder.TotalAmount + order.TaxAmount;
 
-                    _context.Update(existingOrder);
+                _context.Update(existingOrder);
 
-                    // Add new items and update stock
-                    foreach (var newItem in items)
+                // Add new items and update stock
+                foreach (var newItem in items)
+                {
+                    newItem.SalesOrderId = existingOrder.Id;
+                    newItem.TotalPrice = newItem.Quantity * newItem.UnitPrice;
+                    _context.SalesOrderItems.Add(newItem);
+
+                    var product = await _context.Products.FindAsync(newItem.ProductId);
+                    if (product != null)
                     {
-                        newItem.SalesOrderId = existingOrder.Id;
-                        newItem.TotalPrice = newItem.Quantity * newItem.UnitPrice;
-                        _context.SalesOrderItems.Add(newItem);
-
-                        // Update product stock
-                        var product = await _context.Products.FindAsync(newItem.ProductId);
                         product.StockQuantity -= newItem.Quantity;
                         _context.Products.Update(product);
 
-                        // Record stock movement
                         var movement = new StockMovement
                         {
                             ProductId = product.Id,
                             Quantity = -newItem.Quantity,
                             MovementType = "Sale",
                             ReferenceNumber = existingOrder.OrderNumber,
-                            Notes = $"Sales order update #{existingOrder.OrderNumber}"
+                            Notes = $"Sales order update #{existingOrder.OrderNumber}",
+                            MovementDate = DateTime.Now
                         };
                         _context.StockMovements.Add(movement);
                     }
+                }
 
-                    await _context.SaveChangesAsync();
-                    TempData["Success"] = "Sales order updated successfully!";
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!SalesOrderExists(order.Id))
-                        return NotFound();
-                    else
-                        throw;
-                }
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = $"Sales order #{existingOrder.OrderNumber} updated successfully!";
                 return RedirectToAction(nameof(SalesOrders));
             }
-
-            ViewBag.Customers = _context.Customers
-                .Where(c => c.IsActive)
-                .OrderBy(c => c.Name)
-                .ToList();
-            ViewBag.Products = _context.Products
-                .Include(p => p.Category)
-                .Where(p => p.StockQuantity > 0)
-                .OrderBy(p => p.Name)
-                .ToList();
-
-            return View(order);
-        }
-
-        private async Task RestoreOriginalOrder(SalesOrder order)
-        {
-            var originalItems = await _context.SalesOrderItems
-                .Where(i => i.SalesOrderId == order.Id)
-                .ToListAsync();
-
-            foreach (var item in originalItems)
+            catch (Exception ex)
             {
-                var product = await _context.Products.FindAsync(item.ProductId);
-                if (product != null)
-                {
-                    product.StockQuantity -= item.Quantity;
-                    _context.Products.Update(product);
-                }
+                TempData["Error"] = $"Error updating sales order: {ex.Message}";
+                ViewBag.Customers = _context.Customers
+                    .Where(c => c.IsActive)
+                    .OrderBy(c => c.Name)
+                    .ToList();
+                ViewBag.Products = _context.Products
+                    .Include(p => p.Category)
+                    .OrderBy(p => p.Name)
+                    .ToList();
+                return View(order);
             }
-            await _context.SaveChangesAsync();
         }
 
         // GET: Admin/Order/DeleteSalesOrder/5
@@ -691,6 +914,12 @@ namespace SIOMS.Areas.Admin.Controllers
             if (order == null)
                 return NotFound();
 
+            if (order.Status == "Completed")
+            {
+                TempData["Error"] = "Cannot delete completed sales order.";
+                return RedirectToAction(nameof(SalesOrders));
+            }
+
             return View(order);
         }
 
@@ -699,42 +928,51 @@ namespace SIOMS.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteSalesOrderConfirmed(int id)
         {
-            var order = await _context.SalesOrders
-                .Include(so => so.Items)
-                .FirstOrDefaultAsync(so => so.Id == id);
-
-            if (order == null)
-                return NotFound();
-
-            if (order.Status == "Completed")
+            try
             {
-                TempData["Error"] = "Cannot delete completed sales order.";
-                return RedirectToAction(nameof(SalesOrders));
-            }
+                var order = await _context.SalesOrders
+                    .Include(so => so.Items)
+                    .FirstOrDefaultAsync(so => so.Id == id);
 
-            // Restore stock for pending orders
-            if (order.Status == "Pending")
-            {
-                foreach (var item in order.Items)
+                if (order == null)
+                    return NotFound();
+
+                if (order.Status == "Completed")
                 {
-                    var product = await _context.Products.FindAsync(item.ProductId);
-                    if (product != null)
+                    TempData["Error"] = "Cannot delete completed sales order.";
+                    return RedirectToAction(nameof(SalesOrders));
+                }
+
+                // Restore stock for pending orders
+                if (order.Status == "Pending" && order.Items != null)
+                {
+                    foreach (var item in order.Items)
                     {
-                        product.StockQuantity += item.Quantity;
-                        _context.Products.Update(product);
+                        var product = await _context.Products.FindAsync(item.ProductId);
+                        if (product != null)
+                        {
+                            product.StockQuantity += item.Quantity;
+                            _context.Products.Update(product);
+                        }
                     }
                 }
+
+                if (order.Items != null && order.Items.Any())
+                {
+                    _context.SalesOrderItems.RemoveRange(order.Items);
+                }
+
+                _context.SalesOrders.Remove(order);
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = $"Sales order #{order.OrderNumber} deleted successfully!";
+                return RedirectToAction(nameof(SalesOrders));
             }
-
-            // Remove related items
-            _context.SalesOrderItems.RemoveRange(order.Items);
-
-            // Remove order
-            _context.SalesOrders.Remove(order);
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] = "Sales order deleted successfully!";
-            return RedirectToAction(nameof(SalesOrders));
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error deleting sales order: {ex.Message}";
+                return RedirectToAction(nameof(SalesOrders));
+            }
         }
 
         private bool PurchaseOrderExists(int id)
@@ -747,10 +985,9 @@ namespace SIOMS.Areas.Admin.Controllers
             return _context.SalesOrders.Any(e => e.Id == id);
         }
 
-        // Helper Model for Status Update
         public class StatusUpdateModel
         {
-            public string Status { get; set; }
+            public string? Status { get; set; } = string.Empty;
         }
     }
 }

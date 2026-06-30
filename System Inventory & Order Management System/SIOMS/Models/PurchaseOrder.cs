@@ -27,7 +27,7 @@ namespace SIOMS.Models
         public DateTime? ExpectedDeliveryDate { get; set; }
         
         [StringLength(50)]
-        public string Status { get; set; } = "Pending"; // Pending, Ordered, Delivered, Cancelled
+        public string Status { get; set; } = "Pending";
         
         [DataType(DataType.Currency)]
         [Column(TypeName = "decimal(18,2)")]
@@ -35,16 +35,16 @@ namespace SIOMS.Models
         public decimal TotalAmount { get; set; }
         
         [StringLength(500)]
-        public string Notes { get; set; }
+        public string? Notes { get; set; }
         
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime? UpdatedAt { get; set; }
         
         // Navigation
         [ForeignKey("SupplierId")]
-        public virtual Supplier Supplier { get; set; }
+        public virtual Supplier? Supplier { get; set; }
         
-        public virtual ICollection<PurchaseOrderItem> Items { get; set; }
-        public virtual ICollection<StockMovement> StockMovements { get; set; }
+        public virtual ICollection<PurchaseOrderItem>? Items { get; set; }
+        public virtual ICollection<StockMovement>? StockMovements { get; set; }
     }
 }

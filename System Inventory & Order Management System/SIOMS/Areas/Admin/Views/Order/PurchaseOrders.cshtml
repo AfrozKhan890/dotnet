@@ -2,13 +2,7 @@
 @{
     ViewData["Title"] = "Purchase Orders";
     ViewData["Subtitle"] = "Manage supplier purchase orders";
-    Layout = "_Layout";
-}
-
-@section HeaderButtons {
-    <a href="@Url.Action("CreatePurchaseOrder", "Order", new { area = "Admin" })" class="btn btn-primary">
-        <i class="fas fa-plus me-2"></i> New Purchase Order
-    </a>
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container-fluid py-4">
@@ -218,6 +212,11 @@
                                                             </ul>
                                                         </div>
                                                     }
+                                                    <!-- ✅ ADDED: Delete Button for All Orders -->
+                                                    <a href="@Url.Action("DeletePurchaseOrder", "Order", new { area = "Admin", id = order.Id })" 
+                                                       class="btn btn-outline-danger" title="Delete Order">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
                                                 </div>
                                             </td>
                                         </tr>

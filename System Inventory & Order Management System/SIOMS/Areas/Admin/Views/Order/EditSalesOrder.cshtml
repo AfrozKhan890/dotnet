@@ -2,13 +2,7 @@
 @{
     ViewData["Title"] = "Edit Sales Order";
     ViewData["Subtitle"] = "Update sales order information";
-    Layout = "_Layout";
-}
-
-@section HeaderButtons {
-    <a href="@Url.Action("SalesOrderDetails", "Order", new { area = "Admin", id = Model.Id })" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left me-2"></i> Back to Details
-    </a>
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container-fluid py-4">
@@ -37,6 +31,7 @@
                             <div class="row">
                                 <!-- Left Column - Order Details -->
                                 <div class="col-lg-4">
+                                    <!-- Order Details Card -->
                                     <div class="card mb-4">
                                         <div class="card-header">
                                             <h6 class="card-title mb-0">Order Details</h6>
@@ -93,7 +88,7 @@
                                         </div>
                                     </div>
                                     
-                                    <!-- Summary Card -->
+                                    <!-- ✅ ORDER SUMMARY - ONLY ONE TIME -->
                                     <div class="card">
                                         <div class="card-header">
                                             <h6 class="card-title mb-0">Order Summary</h6>
@@ -276,12 +271,10 @@
             const discountInput = document.getElementById('DiscountPercentage');
             const taxInput = document.getElementById('TaxAmount');
             
-            // Add item button
             document.getElementById('addItemBtn').addEventListener('click', function() {
                 addNewItem();
             });
             
-            // Discount and Tax change listeners
             [discountInput, taxInput].forEach(input => {
                 input.addEventListener('input', updateSummary);
             });
@@ -294,7 +287,6 @@
                 itemElement.innerHTML = newItem;
                 itemsContainer.appendChild(itemElement);
                 
-                // Add event listeners to new item
                 const newItemElement = itemsContainer.lastElementChild;
                 setupItemEvents(newItemElement);
                 
@@ -302,13 +294,11 @@
                 updateSummary();
             }
             
-            // Setup existing items
             document.querySelectorAll('.order-item').forEach(item => {
                 setupItemEvents(item);
             });
             
             function setupItemEvents(itemElement) {
-                // Product select change
                 const productSelect = itemElement.querySelector('.product-select');
                 const priceInput = itemElement.querySelector('.price-input');
                 const quantityInput = itemElement.querySelector('.quantity-input');
@@ -326,7 +316,6 @@
                     }
                 });
                 
-                // Quantity or price change
                 [quantityInput, priceInput].forEach(input => {
                     input.addEventListener('input', function() {
                         calculateItemTotal(itemElement);
@@ -334,7 +323,6 @@
                     });
                 });
                 
-                // Remove item button
                 const removeBtn = itemElement.querySelector('.remove-item-btn');
                 removeBtn.addEventListener('click', function() {
                     itemElement.remove();
@@ -344,7 +332,6 @@
                     }
                 });
                 
-                // Calculate initial total for existing items
                 calculateItemTotal(itemElement);
             }
             
@@ -362,7 +349,6 @@
                 document.querySelectorAll('.order-item').forEach(item => {
                     const quantity = parseFloat(item.querySelector('.quantity-input').value) || 0;
                     const price = parseFloat(item.querySelector('.price-input').value) || 0;
-                    
                     totalItems += quantity;
                     subtotal += quantity * price;
                 });
@@ -384,7 +370,6 @@
                 document.getElementById('grandTotalValue').value = grandTotal.toFixed(2);
             }
             
-            // Form submission validation
             if (form) {
                 form.addEventListener('submit', function(e) {
                     const items = itemsContainer.querySelectorAll('.order-item');
@@ -394,30 +379,6 @@
                         return;
                     }
                     
-                    // Validate stock availability
-                    let stockError = false;
-                    items.forEach(item => {
-                        const productSelect = item.querySelector('.product-select');
-                        const quantityInput = item.querySelector('.quantity-input');
-                        const selectedOption = productSelect.options[productSelect.selectedIndex];
-                        
-                        if (productSelect.value && selectedOption.dataset.stock) {
-                            const availableStock = parseInt(selectedOption.dataset.stock);
-                            const requestedQuantity = parseInt(quantityInput.value);
-                            
-                            if (requestedQuantity > availableStock) {
-                                stockError = true;
-                                alert(`Insufficient stock for selected product. Available: ${availableStock}, Requested: ${requestedQuantity}`);
-                            }
-                        }
-                    });
-                    
-                    if (stockError) {
-                        e.preventDefault();
-                        return;
-                    }
-                    
-                    // Validate all items have product selected
                     let hasError = false;
                     items.forEach(item => {
                         const productSelect = item.querySelector('.product-select');

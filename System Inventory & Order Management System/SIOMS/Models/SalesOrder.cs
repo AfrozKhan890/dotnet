@@ -23,7 +23,7 @@ namespace SIOMS.Models
         public DateTime OrderDate { get; set; } = DateTime.Now;
         
         [StringLength(50)]
-        public string Status { get; set; } = "Pending"; // Pending, Processing, Completed, Cancelled
+        public string Status { get; set; } = "Pending";
         
         [DataType(DataType.Currency)]
         [Column(TypeName = "decimal(18,2)")]
@@ -45,16 +45,16 @@ namespace SIOMS.Models
         public decimal GrandTotal { get; set; }
         
         [StringLength(500)]
-        public string Notes { get; set; }
+        public string? Notes { get; set; }
         
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime? UpdatedAt { get; set; }
         
         // Navigation
         [ForeignKey("CustomerId")]
-        public virtual Customer Customer { get; set; }
+        public virtual Customer? Customer { get; set; }
         
-        public virtual ICollection<SalesOrderItem> Items { get; set; }
-        public virtual ICollection<StockMovement> StockMovements { get; set; }
+        public virtual ICollection<SalesOrderItem>? Items { get; set; }
+        public virtual ICollection<StockMovement>? StockMovements { get; set; }
     }
 }

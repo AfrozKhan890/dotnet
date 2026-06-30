@@ -2,13 +2,7 @@
 @{
     ViewData["Title"] = "Create Purchase Order";
     ViewData["Subtitle"] = "Create a new purchase order";
-    Layout = "_Layout";
-}
-
-@section HeaderButtons {
-    <a href="@Url.Action("PurchaseOrders", "Order", new { area = "Admin" })" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left me-2"></i> Back to Orders
-    </a>
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container-fluid py-4">
@@ -19,6 +13,17 @@
                     <h4 class="card-title mb-0">Create New Purchase Order</h4>
                 </div>
                 <div class="card-body">
+                    <!-- ✅ ADDED: Validation Summary -->
+                    <div asp-validation-summary="All" class="alert alert-danger" style="display:none;"></div>
+                    
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i> @TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
                     <form id="purchaseOrderForm" asp-action="CreatePurchaseOrder" asp-area="Admin" method="post">
                         @Html.AntiForgeryToken()
                         
@@ -32,7 +37,7 @@
                                     <div class="card-body">
                                         <div class="mb-3">
                                             <label asp-for="SupplierId" class="form-label">Supplier *</label>
-                                            <select asp-for="SupplierId" class="form-select" id="supplierSelect" required>
+                                            <select asp-for="SupplierId" class="form-select" required>
                                                 <option value="">Select Supplier</option>
                                                 @foreach (var supplier in ViewBag.Suppliers)
                                                 {
@@ -135,7 +140,7 @@
                         <option value="">Select Product</option>
                         @foreach (var product in ViewBag.Products)
                         {
-                            <option value="@product.Id" data-price="@product.CostPrice" data-stock="@product.StockQuantity">
+                            <option value="@product.Id" data-price="@product.Price" data-stock="@product.StockQuantity">
                                 @product.Name (Stock: @product.StockQuantity)
                             </option>
                         }
@@ -178,12 +183,10 @@
             const itemTemplate = document.getElementById('itemTemplate').innerHTML;
             const form = document.getElementById('purchaseOrderForm');
             
-            // Add item button
             document.getElementById('addItemBtn').addEventListener('click', function() {
                 addNewItem();
             });
             
-            // Add initial item
             addNewItem();
             
             function addNewItem() {
@@ -194,7 +197,6 @@
                 itemElement.innerHTML = newItem;
                 itemsContainer.appendChild(itemElement);
                 
-                // Add event listeners to new item
                 const newItemElement = itemsContainer.lastElementChild;
                 setupItemEvents(newItemElement);
                 
@@ -203,7 +205,6 @@
             }
             
             function setupItemEvents(itemElement) {
-                // Product select change
                 const productSelect = itemElement.querySelector('.product-select');
                 const priceInput = itemElement.querySelector('.price-input');
                 const quantityInput = itemElement.querySelector('.quantity-input');
@@ -217,7 +218,6 @@
                     }
                 });
                 
-                // Quantity or price change
                 [quantityInput, priceInput].forEach(input => {
                     input.addEventListener('input', function() {
                         calculateItemTotal(itemElement);
@@ -225,7 +225,6 @@
                     });
                 });
                 
-                // Remove item button
                 const removeBtn = itemElement.querySelector('.remove-item-btn');
                 removeBtn.addEventListener('click', function() {
                     itemElement.remove();
@@ -250,7 +249,6 @@
                 document.querySelectorAll('.order-item').forEach(item => {
                     const quantity = parseFloat(item.querySelector('.quantity-input').value) || 0;
                     const price = parseFloat(item.querySelector('.price-input').value) || 0;
-                    
                     totalItems += quantity;
                     subtotal += quantity * price;
                 });
@@ -261,7 +259,6 @@
                 document.getElementById('totalAmount').value = subtotal.toFixed(2);
             }
             
-            // Form submission validation
             form.addEventListener('submit', function(e) {
                 const items = itemsContainer.querySelectorAll('.order-item');
                 if (items.length === 0) {
@@ -270,7 +267,6 @@
                     return;
                 }
                 
-                // Validate all items have product selected
                 let hasError = false;
                 items.forEach(item => {
                     const productSelect = item.querySelector('.product-select');

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace SIOMS.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class CategoryController : Controller
+    public class CategoryController : AdminBaseController  // ✅ CHANGED: Inherits from AdminBaseController
     {
         private readonly ApplicationDbContext _context;
 
@@ -82,7 +82,7 @@ namespace SIOMS.Areas.Admin.Controllers
         // GET: /Admin/Category/Create
         public IActionResult Create()
         {
-            return View(new Category()); // Empty category for form
+            return View(new Category());
         }
 
         // POST: /Admin/Category/Create
@@ -98,12 +98,10 @@ namespace SIOMS.Areas.Admin.Controllers
                     return View(category);
                 }
 
-                // Trim inputs
                 category.Name = category.Name.Trim();
                 if (!string.IsNullOrWhiteSpace(category.Description))
                     category.Description = category.Description.Trim();
 
-                // Check for duplicate
                 bool exists = await _context.Categories
                     .AnyAsync(c => c.Name.ToLower() == category.Name.ToLower());
                 
@@ -113,10 +111,8 @@ namespace SIOMS.Areas.Admin.Controllers
                     return View(category);
                 }
 
-                // Set timestamps
                 category.CreatedAt = DateTime.Now;
                 
-                // Save
                 _context.Categories.Add(category);
                 await _context.SaveChangesAsync();
 
@@ -130,7 +126,7 @@ namespace SIOMS.Areas.Admin.Controllers
             }
         }
 
-        // GET: /Admin/Category/Edit/5 - FIXED: Shows old data
+        // GET: /Admin/Category/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             try
@@ -158,7 +154,7 @@ namespace SIOMS.Areas.Admin.Controllers
             }
         }
 
-        // POST: /Admin/Category/Edit/5 - FIXED: Properly updates
+        // POST: /Admin/Category/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Category category)
@@ -177,12 +173,10 @@ namespace SIOMS.Areas.Admin.Controllers
                     return View(category);
                 }
 
-                // Trim inputs
                 category.Name = category.Name.Trim();
                 if (!string.IsNullOrWhiteSpace(category.Description))
                     category.Description = category.Description.Trim();
 
-                // Get existing category
                 var existingCategory = await _context.Categories.FindAsync(id);
                 if (existingCategory == null)
                 {
@@ -190,7 +184,6 @@ namespace SIOMS.Areas.Admin.Controllers
                     return RedirectToAction("Index");
                 }
 
-                // Check for duplicate (excluding current)
                 if (existingCategory.Name.ToLower() != category.Name.ToLower())
                 {
                     bool duplicate = await _context.Categories
@@ -203,7 +196,6 @@ namespace SIOMS.Areas.Admin.Controllers
                     }
                 }
 
-                // Update properties - FIXED: Update existing category, not create new
                 existingCategory.Name = category.Name;
                 existingCategory.Description = category.Description;
                 existingCategory.UpdatedAt = DateTime.Now;
@@ -268,7 +260,6 @@ namespace SIOMS.Areas.Admin.Controllers
                     return RedirectToAction("Index");
                 }
 
-                // Check if category has products
                 if (category.Products.Any())
                 {
                     TempData["Error"] = $"Cannot delete category '{category.Name}' because it has {category.Products.Count} product(s)";

@@ -1,143 +1,176 @@
+@model SIOMS.Models.Settings
+
 @{
-    ViewData["Title"] = "Settings";
-    ViewData["Subtitle"] = "System configuration";
+    ViewData["Title"] = "System Settings";
     Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
-@section HeaderButtons {
-    <button type="submit" form="settingsForm" class="btn btn-primary">
-        <i class="fas fa-save me-2"></i> Save Settings
-    </button>
-}
-
-<div class="container-fluid py-4">
-    <!-- Success/Error Messages -->
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle me-2"></i> @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-
+<div class="container-fluid">
     <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">General Settings</h5>
+                    <h3 class="card-title">
+                        <i class="fas fa-cog"></i> System Settings
+                    </h3>
                 </div>
                 <div class="card-body">
-                    <form id="settingsForm" method="post" asp-area="Admin" asp-controller="Settings" asp-action="Index">
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle"></i> @TempData["Success"]
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+                    
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle"></i> @TempData["Error"]
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+
+                    <form asp-action="Index" method="post">
                         @Html.AntiForgeryToken()
                         
-                        <div class="row mb-3">
+                        <div class="row">
+                            <!-- General Settings -->
                             <div class="col-md-6">
-                                <label class="form-label">Site Name</label>
-                                <input type="text" name="siteName" class="form-control" value="SIOMS" placeholder="Enter site name">
+                                <div class="card card-primary">
+                                    <div class="card-header">
+                                        <h5 class="card-title">General Settings</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label asp-for="SiteName"></label>
+                                            <input asp-for="SiteName" class="form-control" />
+                                            <span asp-validation-for="SiteName" class="text-danger"></span>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label asp-for="SiteEmail"></label>
+                                            <input asp-for="SiteEmail" class="form-control" />
+                                            <span asp-validation-for="SiteEmail" class="text-danger"></span>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label asp-for="Currency"></label>
+                                            <input asp-for="Currency" class="form-control" placeholder="PKR, USD, EUR" />
+                                            <span asp-validation-for="Currency" class="text-danger"></span>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label asp-for="CurrencySymbol"></label>
+                                            <input asp-for="CurrencySymbol" class="form-control" placeholder="Rs., $, €" />
+                                            <span asp-validation-for="CurrencySymbol" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+                            
+                            <!-- Business Settings -->
                             <div class="col-md-6">
-                                <label class="form-label">Site Email</label>
-                                <input type="email" name="siteEmail" class="form-control" value="admin@sioms.com" placeholder="Enter site email">
+                                <div class="card card-info">
+                                    <div class="card-header">
+                                        <h5 class="card-title">Business Settings</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label asp-for="CompanyName"></label> <!-- ✅ Now works -->
+                                            <input asp-for="CompanyName" class="form-control" />
+                                            <span asp-validation-for="CompanyName" class="text-danger"></span>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label asp-for="CompanyAddress"></label>
+                                            <textarea asp-for="CompanyAddress" class="form-control" rows="2"></textarea>
+                                            <span asp-validation-for="CompanyAddress" class="text-danger"></span>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label asp-for="CompanyPhone"></label>
+                                            <input asp-for="CompanyPhone" class="form-control" />
+                                            <span asp-validation-for="CompanyPhone" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-
-                        <div class="row mb-3">
+                        
+                        <div class="row">
+                            <!-- System Settings -->
                             <div class="col-md-6">
-                                <label class="form-label">Currency</label>
-                                <select name="currency" class="form-select">
-                                    <option value="USD" selected>USD ($)</option>
-                                    <option value="EUR">EUR (€)</option>
-                                    <option value="GBP">GBP (£)</option>
-                                    <option value="PKR">PKR (₨)</option>
-                                </select>
+                                <div class="card card-warning">
+                                    <div class="card-header">
+                                        <h5 class="card-title">System Settings</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label asp-for="LowStockThreshold"></label>
+                                            <input asp-for="LowStockThreshold" class="form-control" type="number" />
+                                            <span asp-validation-for="LowStockThreshold" class="text-danger"></span>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label asp-for="TaxRate"></label>
+                                            <input asp-for="TaxRate" class="form-control" type="number" step="0.01" />
+                                            <span asp-validation-for="TaxRate" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+                            
+                            <!-- Notification Settings -->
                             <div class="col-md-6">
-                                <label class="form-label">Date Format</label>
-                                <select name="dateFormat" class="form-select">
-                                    <option value="MM/dd/yyyy" selected>MM/dd/yyyy</option>
-                                    <option value="dd/MM/yyyy">dd/MM/yyyy</option>
-                                    <option value="yyyy-MM-dd">yyyy-MM-dd</option>
-                                </select>
+                                <div class="card card-success">
+                                    <div class="card-header">
+                                        <h5 class="card-title">Notification Settings</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <div class="custom-control custom-switch">
+                                                <input asp-for="EnableEmailNotifications" class="custom-control-input" type="checkbox" />
+                                                <label asp-for="EnableEmailNotifications" class="custom-control-label"></label>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <div class="custom-control custom-switch">
+                                                <input asp-for="EnableSMSAlerts" class="custom-control-input" type="checkbox" />
+                                                <label asp-for="EnableSMSAlerts" class="custom-control-label"></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Low Stock Threshold (days)</label>
-                            <input type="number" name="lowStockThreshold" class="form-control" value="7" min="1" max="30">
-                            <small class="text-muted">Alert when stock will run out within this many days</small>
-                        </div>
-
-                        <div class="mb-3">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="emailNotifications" name="emailNotifications" checked>
-                                <label class="form-check-label" for="emailNotifications">
-                                    Enable Email Notifications
-                                </label>
+                        
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-body text-center">
+                                        <button type="submit" class="btn btn-primary btn-lg">
+                                            <i class="fas fa-save"></i> Save Settings
+                                        </button>
+                                        <a asp-action="Index" class="btn btn-secondary btn-lg ml-2">
+                                            <i class="fas fa-undo"></i> Reset
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="autoReorder" name="autoReorder">
-                                <label class="form-check-label" for="autoReorder">
-                                    Enable Auto Reorder
-                                </label>
-                            </div>
-                            <small class="text-muted">Automatically create purchase orders when stock is low</small>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Backup Settings</h5>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label">Last Backup</label>
-                        <p class="text-muted">Never</p>
-                    </div>
-                    <button class="btn btn-primary">
-                        <i class="fas fa-download me-2"></i> Create Backup
-                    </button>
-                    <button class="btn btn-outline-secondary ms-2">
-                        <i class="fas fa-upload me-2"></i> Restore Backup
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">System Info</h5>
-                </div>
-                <div class="card-body">
-                    <table class="table table-sm">
-                        <tr>
-                            <th>Version</th>
-                            <td>1.0.0</td>
-                        </tr>
-                        <tr>
-                            <th>Database</th>
-                            <td>SQL Server</td>
-                        </tr>
-                        <tr>
-                            <th>Framework</th>
-                            <td>ASP.NET Core 8.0</td>
-                        </tr>
-                        <tr>
-                            <th>Server Time</th>
-                            <td>@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")</td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

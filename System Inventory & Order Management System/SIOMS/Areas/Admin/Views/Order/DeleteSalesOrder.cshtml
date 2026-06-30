@@ -2,13 +2,7 @@
 @{
     ViewData["Title"] = "Delete Sales Order";
     ViewData["Subtitle"] = "Confirm sales order deletion";
-    Layout = "_Layout";
-}
-
-@section HeaderButtons {
-    <a href="@Url.Action("SalesOrders", "Order", new { area = "Admin" })" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left me-2"></i> Back to Orders
-    </a>
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container-fluid py-4">

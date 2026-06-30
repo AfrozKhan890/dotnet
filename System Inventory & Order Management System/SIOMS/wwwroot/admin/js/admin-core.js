@@ -1,148 +1,205 @@
-// Admin Core JavaScript - Essential functionality
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Admin Core JS loaded');
-    
-    // 1. Fix Sidebar Toggle
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const sidebarClose = document.getElementById('sidebarClose');
-    const sidebar = document.getElementById('sidebar-wrapper');
-    const overlay = document.querySelector('.sidebar-overlay');
-    
-    if (sidebarToggle && sidebar) {
-        sidebarToggle.addEventListener('click', function(e) {
-            e.preventDefault();
-            sidebar.classList.toggle('active');
-            
-            if (overlay) {
-                overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
-            }
-            
-            // Update icon
-            const icon = this.querySelector('i');
-            if (icon.classList.contains('fa-bars')) {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-times');
-            } else {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            }
-        });
-    }
-    
-    if (sidebarClose && sidebar) {
-        sidebarClose.addEventListener('click', function() {
-            sidebar.classList.remove('active');
-            if (overlay) overlay.style.display = 'none';
-        });
-    }
-    
-    if (overlay && sidebar) {
-        overlay.addEventListener('click', function() {
-            sidebar.classList.remove('active');
-            this.style.display = 'none';
-        });
-    }
-    
-    // 2. Fix Theme Toggle
-    const themeToggle = document.querySelector('.theme-toggle');
-    if (themeToggle) {
-        themeToggle.addEventListener('click', function() {
-            const html = document.documentElement;
-            const currentTheme = html.getAttribute('data-bs-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            html.setAttribute('data-bs-theme', newTheme);
-            
-            // Save to localStorage
-            localStorage.setItem('theme', newTheme);
-            
-            // Update icon
-            const icon = this.querySelector('i');
-            if (icon) {
-                if (newTheme === 'dark') {
-                    icon.classList.remove('fa-moon');
-                    icon.classList.add('fa-sun');
-                } else {
-                    icon.classList.remove('fa-sun');
-                    icon.classList.add('fa-moon');
+/* ========================================
+   SIOMS ADMIN CORE JS
+   ======================================== */
+
+$(document).ready(function() {
+    'use strict';
+
+    // ===== SIDEBAR TOGGLE FOR MOBILE =====
+    $('#sidebarToggle').on('click', function(e) {
+        e.preventDefault();
+        $('#mainSidebar').toggleClass('show');
+        $('#sidebarOverlay').toggleClass('show');
+        $('body').toggleClass('sidebar-open');
+    });
+
+    $('#sidebarOverlay').on('click', function() {
+        $('#mainSidebar').removeClass('show');
+        $('#sidebarOverlay').removeClass('show');
+        $('body').removeClass('sidebar-open');
+    });
+
+    // ===== AUTO CLOSE SIDEBAR ON MOBILE WHEN LINK CLICKED =====
+    $('.nav-sidebar .nav-link').on('click', function() {
+        if ($(window).width() < 992) {
+            $('#mainSidebar').removeClass('show');
+            $('#sidebarOverlay').removeClass('show');
+            $('body').removeClass('sidebar-open');
+        }
+    });
+
+    // ===== OVERLAY SCROLLBARS =====
+    if (typeof OverlayScrollbars !== 'undefined') {
+        try {
+            OverlayScrollbars(document.querySelectorAll('body'), {
+                className: 'os-theme-dark',
+                sizeAutoCapable: true,
+                paddingAbsolute: false,
+                scrollbars: {
+                    autoHide: 'leave',
+                    autoHideDelay: 200,
+                    autoHideInteractive: false,
+                    clickScrolling: true,
+                    dragScrolling: true,
+                    overflowBehavior: {
+                        x: 'visible-hidden',
+                        y: 'scroll'
+                    }
                 }
-            }
-        });
-        
-        // Load saved theme
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        document.documentElement.setAttribute('data-bs-theme', savedTheme);
-        
-        const icon = themeToggle.querySelector('i');
-        if (icon && savedTheme === 'dark') {
-            icon.classList.remove('fa-moon');
-            icon.classList.add('fa-sun');
+            });
+        } catch (e) {
+            console.log('OverlayScrollbars initialization skipped');
         }
     }
-    
-    // 3. Fix Dropdowns
-    const dropdowns = document.querySelectorAll('.dropdown-toggle');
-    dropdowns.forEach(dropdown => {
-        dropdown.addEventListener('click', function(e) {
-            e.preventDefault();
-            // Let Bootstrap handle this
-        });
+
+    // ===== AUTO DISMISS ALERTS =====
+    $('.alert').each(function() {
+        var $alert = $(this);
+        setTimeout(function() {
+            $alert.fadeOut('slow', function() {
+                $(this).remove();
+            });
+        }, 5000);
     });
-    
-    // 4. Fix Collapse for Orders
-    const orderCollapse = document.getElementById('orderCollapse');
-    if (orderCollapse) {
-        // Bootstrap will handle this automatically
-    }
-    
-    // 5. Fix all sidebar links
-    const sidebarLinks = document.querySelectorAll('.sidebar-link');
-    sidebarLinks.forEach(link => {
-        // Remove any conflicting event listeners
-        link.removeEventListener('click', null);
-        
-        // For collapse toggle links, let Bootstrap handle
-        if (link.hasAttribute('data-bs-toggle') && link.getAttribute('data-bs-toggle') === 'collapse') {
-            return;
+
+    // ===== WINDOW RESIZE HANDLER =====
+    $(window).on('resize', function() {
+        if ($(window).width() >= 992) {
+            $('#mainSidebar').removeClass('show');
+            $('#sidebarOverlay').removeClass('show');
+            $('body').removeClass('sidebar-open');
         }
+    });
+
+    // ===== TOOLTIP INITIALIZATION =====
+    if ($.fn.tooltip) {
+        $('[data-toggle="tooltip"]').tooltip();
+    }
+
+    // ===== POPOVER INITIALIZATION =====
+    if ($.fn.popover) {
+        $('[data-toggle="popover"]').popover();
+    }
+
+    // ===== CONFIRM DELETE =====
+    $('.delete-confirm').on('click', function(e) {
+        e.preventDefault();
+        var href = $(this).attr('href');
+        var message = $(this).data('message') || 'Are you sure you want to delete this item?';
         
-        // For regular links
-        link.addEventListener('click', function(e) {
-            if (this.href && !this.href.includes('#')) {
-                console.log('Navigating to:', this.href);
-                // Navigation will happen automatically via href
-            }
-        });
+        if (confirm(message)) {
+            window.location.href = href;
+        }
     });
-    
-    // 6. Auto-close sidebar on mobile when clicking a link
-    const allLinks = document.querySelectorAll('a');
-    allLinks.forEach(link => {
-        link.addEventListener('click', function() {
-            if (window.innerWidth < 992) { // Mobile
-                if (sidebar) sidebar.classList.remove('active');
-                if (overlay) overlay.style.display = 'none';
-            }
+
+    // ===== DATATABLE DEFAULTS =====
+    if ($.fn.DataTable) {
+        $.extend(true, $.fn.DataTable.defaults, {
+            language: {
+                search: 'Search:',
+                lengthMenu: 'Show _MENU_ entries',
+                info: 'Showing _START_ to _END_ of _TOTAL_ entries',
+                infoEmpty: 'No entries found',
+                infoFiltered: '(filtered from _MAX_ total entries)',
+                zeroRecords: 'No matching records found',
+                paginate: {
+                    first: 'First',
+                    last: 'Last',
+                    next: 'Next',
+                    previous: 'Previous'
+                }
+            },
+            responsive: true,
+            autoWidth: false
         });
-    });
-    
-    console.log('All core functionality initialized');
+    }
+
+    // ===== SELECT2 DEFAULTS =====
+    if ($.fn.select2) {
+        $.fn.select2.defaults.set('theme', 'bootstrap4');
+        $.fn.select2.defaults.set('width', '100%');
+    }
+
+    // ===== SUMMERNOTE DEFAULTS =====
+    if ($.fn.summernote) {
+        $.fn.summernote.defaults = {
+            height: 200,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ]
+        };
+    }
 });
 
-// Make functions available globally
-window.adminCore = {
-    toggleSidebar: function() {
-        const sidebar = document.getElementById('sidebar-wrapper');
-        const overlay = document.querySelector('.sidebar-overlay');
-        if (sidebar) {
-            sidebar.classList.toggle('active');
-            if (overlay) {
-                overlay.style.display = sidebar.classList.contains('active') ? 'block' : 'none';
-            }
-        }
+// ===== LOADING SPINNER =====
+function showLoading() {
+    var spinner = `
+        <div id="loadingSpinner" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.8);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        ">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+    `;
+    $('body').append(spinner);
+}
+
+function hideLoading() {
+    $('#loadingSpinner').remove();
+}
+
+// ===== AJAX SETUP =====
+$.ajaxSetup({
+    beforeSend: function() {
+        // showLoading();
     },
-    
-    setTheme: function(theme) {
-        document.documentElement.setAttribute('data-bs-theme', theme);
-        localStorage.setItem('theme', theme);
+    complete: function() {
+        // hideLoading();
     }
-};
+});
+
+// ===== TOAST NOTIFICATION =====
+function showToast(message, type) {
+    type = type || 'success';
+    var icon = {
+        'success': 'fa-check-circle',
+        'danger': 'fa-exclamation-circle',
+        'warning': 'fa-exclamation-triangle',
+        'info': 'fa-info-circle'
+    };
+    
+    var toast = `
+        <div class="alert alert-${type} alert-dismissible fade show position-fixed" 
+             style="top: 20px; right: 20px; z-index: 9999; min-width: 300px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+            <i class="fas ${icon[type] || icon.info} mr-2"></i>
+            ${message}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    `;
+    
+    $('body').append(toast);
+    
+    setTimeout(function() {
+        $('.alert.position-fixed').fadeOut('slow', function() {
+            $(this).remove();
+        });
+    }, 5000);
+}

@@ -2,13 +2,7 @@
 @{
     ViewData["Title"] = "Edit Purchase Order";
     ViewData["Subtitle"] = "Update purchase order information";
-    Layout = "_Layout";
-}
-
-@section HeaderButtons {
-    <a href="@Url.Action("PurchaseOrderDetails", "Order", new { area = "Admin", id = Model.Id })" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left me-2"></i> Back to Details
-    </a>
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container-fluid py-4">
@@ -134,8 +128,9 @@
                                                                             <option value="">Select Product</option>
                                                                             @foreach (var product in ViewBag.Products)
                                                                             {
+                                                                                <!-- ✅ FIX: CostPrice -> Price -->
                                                                                 <option value="@product.Id" 
-                                                                                        data-price="@product.CostPrice"
+                                                                                        data-price="@product.Price"
                                                                                         selected="@(product.Id == item.ProductId)">
                                                                                     @product.Name (Stock: @product.StockQuantity)
                                                                                 </option>
@@ -210,7 +205,8 @@
                         <option value="">Select Product</option>
                         @foreach (var product in ViewBag.Products)
                         {
-                            <option value="@product.Id" data-price="@product.CostPrice" data-stock="@product.StockQuantity">
+                            <!-- ✅ FIX: CostPrice -> Price -->
+                            <option value="@product.Id" data-price="@product.Price" data-stock="@product.StockQuantity">
                                 @product.Name (Stock: @product.StockQuantity)
                             </option>
                         }
