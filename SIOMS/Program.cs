@@ -1,0 +1,82 @@
+using Microsoft.EntityFrameworkCore;
+using SIOMS.Data;
+using Microsoft.AspNetCore.Authentication.Cookies;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services
+builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
+
+// Add DbContext
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// ✅ ADD THIS - Fix authentication error
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.Cookie.Name = "SIOMS.Auth";
+    });
+
+// Add Session
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.Cookie.Name = "SIOMS.Session";
+});
+
+// Add Area support
+builder.Services.AddRazorPages(options =>
+{
+    options.Conventions.AddAreaPageRoute("Admin", "/Admin/Index", "Admin");
+});
+
+var app = builder.Build();
+
+// Ensure database is created
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    context.Database.EnsureCreated();
+
+    // ✅ ADDED: load the saved currency symbol (if any) so every page shows the
+    // correct currency immediately on startup, not just after visiting Settings.
+    var settings = context.Settings.FirstOrDefault();
+    if (settings != null && !string.IsNullOrEmpty(settings.CurrencySymbol))
+    {
+        SIOMS.Helpers.CurrencyFormatter.Symbol = settings.CurrencySymbol;
+    }
+}
+
+// Configure pipeline
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseRouting();
+
+// ✅ ADD THESE - Order matters!
+app.UseAuthentication();  // First
+app.UseAuthorization();   // Second
+
+app.UseSession();
+
+// ✅ FIXED ROUTING
+app.MapControllerRoute(
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.Run();

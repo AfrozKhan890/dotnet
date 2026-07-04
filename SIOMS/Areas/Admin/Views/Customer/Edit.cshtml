@@ -1,0 +1,128 @@
+@model SIOMS.Models.Customer
+@{
+    ViewData["Title"] = "Edit Customer";
+    ViewData["Subtitle"] = "Update customer information";
+    Layout = "_Layout";
+}
+
+@section HeaderButtons {
+    <a href="@Url.Action("Index", "Customer", new { area = "Admin" })" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i> Back to Customers
+    </a>
+}
+
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Edit Customer</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" asp-area="Admin" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="CreatedAt" />
+                        
+                        @if (TempData["Error"] != null)
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-circle me-2"></i> @TempData["Error"]
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+                        
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label asp-for="Name" class="form-label">Customer Name *</label>
+                                <input asp-for="Name" class="form-control" required>
+                                <span asp-validation-for="Name" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Phone" class="form-label">Phone Number</label>
+                                <input asp-for="Phone" type="tel" class="form-control">
+                                <span asp-validation-for="Phone" class="text-danger small"></span>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Email" class="form-label">Email Address</label>
+                                <input asp-for="Email" type="email" class="form-control">
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Address" class="form-label">Address</label>
+                            <textarea asp-for="Address" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Address" class="text-danger small"></span>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="City" class="form-label">City</label>
+                                <input asp-for="City" class="form-control">
+                                <span asp-validation-for="City" class="text-danger small"></span>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PostalCode" class="form-label">Postal Code</label>
+                                <input asp-for="PostalCode" class="form-control">
+                                <span asp-validation-for="PostalCode" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="CustomerType" class="form-label">Customer Type</label>
+                                <select asp-for="CustomerType" class="form-select">
+                                    <option value="Regular">Regular</option>
+                                    <option value="VIP">VIP</option>
+                                    <option value="Wholesale">Wholesale</option>
+                                </select>
+                                <span asp-validation-for="CustomerType" class="text-danger small"></span>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Account Status</label>
+                                <div class="form-check mt-2">
+                                    <input asp-for="IsActive" class="form-check-input">
+                                    <label asp-for="IsActive" class="form-check-label">Active Customer</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Created Date</label>
+                                <p class="form-control-plaintext">@Model.CreatedAt.ToString("MMMM dd, yyyy")</p>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Total Orders</label>
+                                <p class="form-control-plaintext">@(Model.SalesOrders?.Count ?? 0) orders</p>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="@Url.Action("Index", "Customer", new { area = "Admin" })" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i> Update Customer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

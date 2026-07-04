@@ -1,0 +1,106 @@
+@model SIOMS.Models.Customer
+@{
+    ViewData["Title"] = "Delete Customer";
+    ViewData["Subtitle"] = "Confirm customer deletion";
+    Layout = "_Layout";
+}
+
+@section HeaderButtons {
+    <a href="@Url.Action("Index", "Customer", new { area = "Admin" })" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i> Back to Customers
+    </a>
+}
+
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="card-title mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i> Delete Customer
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger">
+                        <h5><i class="fas fa-exclamation-circle me-2"></i> Warning!</h5>
+                        <p class="mb-0">You are about to permanently delete this customer and all associated data.</p>
+                    </div>
+                    
+                    <div class="customer-details p-3 bg-light rounded mb-4">
+                        <h6 class="mb-3">Customer Details:</h6>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-2"><strong>Name:</strong> @Model.Name</p>
+                                <p class="mb-2"><strong>Type:</strong> @Model.CustomerType</p>
+                                <p class="mb-2"><strong>Status:</strong> 
+                                    @if (Model.IsActive)
+                                    {
+                                        <span class="badge bg-success">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Inactive</span>
+                                    }
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                @if (!string.IsNullOrEmpty(Model.Phone))
+                                {
+                                    <p class="mb-2"><strong>Phone:</strong> @Model.Phone</p>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.Email))
+                                {
+                                    <p class="mb-2"><strong>Email:</strong> @Model.Email</p>
+                                }
+                                <p class="mb-2"><strong>Orders:</strong> @(Model.SalesOrders?.Count ?? 0)</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    @if (Model.SalesOrders != null && Model.SalesOrders.Any())
+                    {
+                        <div class="alert alert-warning mb-4">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Important:</strong> This customer has <strong>@Model.SalesOrders.Count orders</strong> 
+                            that will also be deleted.
+                        </div>
+                    }
+                    
+                    <form asp-action="Delete" asp-area="Admin" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+                        
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="confirmDelete" required>
+                            <label class="form-check-label text-danger fw-bold" for="confirmDelete">
+                                I understand that this will permanently delete the customer and all associated orders.
+                            </label>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="@Url.Action("Index", "Customer", new { area = "Admin" })" class="btn btn-secondary">
+                                <i class="fas fa-times me-2"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-danger" id="deleteBtn" disabled>
+                                <i class="fas fa-trash me-2"></i> Delete Customer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const confirmCheckbox = document.getElementById('confirmDelete');
+            const deleteBtn = document.getElementById('deleteBtn');
+            
+            confirmCheckbox.addEventListener('change', function() {
+                deleteBtn.disabled = !this.checked;
+            });
+        });
+    </script>
+}

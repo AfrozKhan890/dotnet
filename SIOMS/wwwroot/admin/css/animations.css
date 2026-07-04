@@ -1,0 +1,333 @@
+/* ========================================
+   SIOMS ANIMATIONS CSS
+   ======================================== */
+
+/* ===== FADE IN ===== */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.4s ease forwards;
+}
+
+.fade-in-delay-1 { animation-delay: 0.1s; }
+.fade-in-delay-2 { animation-delay: 0.2s; }
+.fade-in-delay-3 { animation-delay: 0.3s; }
+.fade-in-delay-4 { animation-delay: 0.4s; }
+.fade-in-delay-5 { animation-delay: 0.5s; }
+
+/* ===== FADE IN UP ===== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+.fade-in-up-delay-1 { animation-delay: 0.1s; }
+.fade-in-up-delay-2 { animation-delay: 0.2s; }
+.fade-in-up-delay-3 { animation-delay: 0.3s; }
+.fade-in-up-delay-4 { animation-delay: 0.4s; }
+.fade-in-up-delay-5 { animation-delay: 0.5s; }
+
+/* ===== FADE IN DOWN ===== */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-down {
+    animation: fadeInDown 0.4s ease forwards;
+}
+
+/* ===== SLIDE IN LEFT ===== */
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.slide-in-left {
+    animation: slideInLeft 0.4s ease forwards;
+}
+
+/* ===== SLIDE IN RIGHT ===== */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.slide-in-right {
+    animation: slideInRight 0.4s ease forwards;
+}
+
+/* ===== ZOOM IN ===== */
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.zoom-in {
+    animation: zoomIn 0.3s ease forwards;
+}
+
+/* ===== BOUNCE ===== */
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-20px);
+    }
+    60% {
+        transform: translateY(-10px);
+    }
+}
+
+.bounce {
+    animation: bounce 1s ease;
+}
+
+/* ===== PULSE ===== */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+.pulse-fast {
+    animation: pulse 1s infinite;
+}
+
+.pulse-slow {
+    animation: pulse 3s infinite;
+}
+
+/* ===== SHAKE ===== */
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-10px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(10px);
+    }
+}
+
+.shake {
+    animation: shake 0.5s ease;
+}
+
+/* ===== SPIN ===== */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+/* ===== HEARTBEAT ===== */
+@keyframes heartbeat {
+    0% {
+        transform: scale(1);
+    }
+    14% {
+        transform: scale(1.3);
+    }
+    28% {
+        transform: scale(1);
+    }
+    42% {
+        transform: scale(1.3);
+    }
+    70% {
+        transform: scale(1);
+    }
+}
+
+.heartbeat {
+    animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+/* ===== FLASH ===== */
+@keyframes flash {
+    0%, 50%, 100% {
+        opacity: 1;
+    }
+    25%, 75% {
+        opacity: 0;
+    }
+}
+
+.flash {
+    animation: flash 1.5s ease infinite;
+}
+
+/* ===== RIPPLE ===== */
+@keyframes ripple {
+    from {
+        transform: scale(0);
+        opacity: 0.5;
+    }
+    to {
+        transform: scale(2);
+        opacity: 0;
+    }
+}
+
+.ripple-effect {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple-effect:after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    padding-top: 100%;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    transform: scale(0);
+    opacity: 0;
+}
+
+.ripple-effect:active:after {
+    animation: ripple 0.6s ease;
+}
+
+/* ===== HOVER ANIMATIONS ===== */
+.hover-grow {
+    transition: transform 0.3s ease;
+}
+
+.hover-grow:hover {
+    transform: scale(1.05);
+}
+
+.hover-grow-lg:hover {
+    transform: scale(1.1);
+}
+
+.hover-shrink:hover {
+    transform: scale(0.95);
+}
+
+.hover-float {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-float:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+.hover-shadow {
+    transition: box-shadow 0.3s ease;
+}
+
+.hover-shadow:hover {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+
+/* ===== STAGGERED ANIMATIONS ===== */
+.stagger-children > * {
+    opacity: 0;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.3s; }
+.stagger-children > *:nth-child(7) { animation-delay: 0.35s; }
+.stagger-children > *:nth-child(8) { animation-delay: 0.4s; }
+.stagger-children > *:nth-child(9) { animation-delay: 0.45s; }
+.stagger-children > *:nth-child(10) { animation-delay: 0.5s; }
+
+.stagger-children.animated > * {
+    animation: fadeInUp 0.4s ease forwards;
+}
+
+/* ===== TYPEWRITER ===== */
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+@keyframes blink {
+    0%, 100% { border-color: transparent; }
+    50% { border-color: #667eea; }
+}
+
+.typewriter {
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 2px solid #667eea;
+    animation: typing 2s steps(30) forwards, blink 0.8s step-end infinite;
+}
+
+/* ===== GLOW ===== */
+@keyframes glow {
+    from {
+        box-shadow: 0 0 5px #667eea, 0 0 10px #667eea;
+    }
+    to {
+        box-shadow: 0 0 20px #667eea, 0 0 40px #764ba2;
+    }
+}
+
+.glow {
+    animation: glow 2s ease-in-out infinite alternate;
+}

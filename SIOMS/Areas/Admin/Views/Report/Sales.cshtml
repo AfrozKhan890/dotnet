@@ -1,0 +1,132 @@
+@model IEnumerable<SIOMS.Models.SalesOrder>
+
+@{
+    ViewData["Title"] = "Sales Report";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    var totalSales = Model?.Sum(m => m.GrandTotal) ?? 0;
+    var totalOrders = Model?.Count() ?? 0;
+    var avgOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-chart-line"></i> Sales Report
+        </h3>
+    </div>
+    <div class="card-body">
+        <!-- Filter -->
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <form method="get" class="form-inline">
+                    <div class="form-group mr-2">
+                        <label class="mr-2">From:</label>
+                        <input type="date" name="fromDate" class="form-control" value="@ViewBag.FromDate" />
+                    </div>
+                    <div class="form-group mr-2">
+                        <label class="mr-2">To:</label>
+                        <input type="date" name="toDate" class="form-control" value="@ViewBag.ToDate" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Filter
+                    </button>
+                    <a href="@Url.Action("Sales")" class="btn btn-secondary ml-2">
+                        <i class="fas fa-undo"></i> Reset
+                    </a>
+                </form>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <div class="info-box">
+                    <span class="info-box-icon bg-success"><i class="fas fa-money-bill-wave"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Total Sales</span>
+                        <span class="info-box-number">@SIOMS.Helpers.CurrencyFormatter.Format(totalSales)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fas fa-shopping-cart"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Total Orders</span>
+                        <span class="info-box-number">@totalOrders</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="info-box">
+                    <span class="info-box-icon bg-warning"><i class="fas fa-calculator"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Avg Order Value</span>
+                        <span class="info-box-number">@SIOMS.Helpers.CurrencyFormatter.Format(avgOrderValue)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="info-box">
+                    <span class="info-box-icon bg-danger"><i class="fas fa-tag"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Status Filter</span>
+                        <span class="info-box-number">@(ViewBag.StatusFilter ?? "All")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var order in Model)
+                        {
+                            <tr>
+                                <td><strong>@order.OrderNumber</strong></td>
+                                <td>@order.Customer?.Name</td>
+                                <td>@order.OrderDate.ToString("yyyy-MM-dd")</td>
+                                <td>@SIOMS.Helpers.CurrencyFormatter.Format(order.GrandTotal)</td>
+                                <td>
+                                    <span class="badge @(order.Status == "Completed" ? "badge-success" : 
+                                                       order.Status == "Pending" ? "badge-warning" : 
+                                                       order.Status == "Processing" ? "badge-info" : 
+                                                       "badge-danger")">
+                                        @order.Status
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="@Url.Action("SalesOrderDetails", "Order", new { id = order.Id })" 
+                                       class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                <i class="fas fa-info-circle"></i> No sales orders found
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

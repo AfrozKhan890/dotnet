@@ -1,0 +1,232 @@
+@model SIOMS.Models.Settings
+
+@{
+    ViewData["Title"] = "System Settings";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-cog"></i> System Settings
+                    </h3>
+                </div>
+                <div class="card-body">
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle"></i> @TempData["Success"]
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+                    
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle"></i> @TempData["Error"]
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+
+                    <form asp-action="Index" method="post">
+                        @Html.AntiForgeryToken()
+                        
+                        <div class="row">
+                            <!-- General Settings -->
+                            <div class="col-md-6">
+                                <div class="card card-primary">
+                                    <div class="card-header">
+                                        <h5 class="card-title">General Settings</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label asp-for="SiteName"></label>
+                                            <input asp-for="SiteName" class="form-control" />
+                                            <span asp-validation-for="SiteName" class="text-danger"></span>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label asp-for="SiteEmail"></label>
+                                            <input asp-for="SiteEmail" class="form-control" />
+                                            <span asp-validation-for="SiteEmail" class="text-danger"></span>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label asp-for="Currency"></label>
+                                            <select asp-for="Currency" class="form-control">
+                                                <option value="PKR">PKR - Pakistani Rupee (Rs.)</option>
+                                                <option value="USD">USD - US Dollar ($)</option>
+                                                <option value="EUR">EUR - Euro (€)</option>
+                                            </select>
+                                            <small class="form-text text-muted">
+                                                The currency symbol updates automatically across the whole app - no manual entry needed.
+                                            </small>
+                                            <span asp-validation-for="Currency" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Business Settings -->
+                            <div class="col-md-6">
+                                <div class="card card-info">
+                                    <div class="card-header">
+                                        <h5 class="card-title">Business Settings</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label asp-for="CompanyName"></label> <!-- ✅ Now works -->
+                                            <input asp-for="CompanyName" class="form-control" />
+                                            <span asp-validation-for="CompanyName" class="text-danger"></span>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label asp-for="CompanyAddress"></label>
+                                            <textarea asp-for="CompanyAddress" class="form-control" rows="2"></textarea>
+                                            <span asp-validation-for="CompanyAddress" class="text-danger"></span>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label asp-for="CompanyPhone"></label>
+                                            <input asp-for="CompanyPhone" class="form-control" />
+                                            <span asp-validation-for="CompanyPhone" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <!-- System Settings -->
+                            <div class="col-md-6">
+                                <div class="card card-warning">
+                                    <div class="card-header">
+                                        <h5 class="card-title">System Settings</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label asp-for="LowStockThreshold"></label>
+                                            <input asp-for="LowStockThreshold" class="form-control" type="number" />
+                                            <span asp-validation-for="LowStockThreshold" class="text-danger"></span>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label asp-for="TaxRate"></label>
+                                            <input asp-for="TaxRate" class="form-control" type="number" step="0.01" />
+                                            <span asp-validation-for="TaxRate" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Notification Settings -->
+                            <div class="col-md-6">
+                                <div class="card card-success">
+                                    <div class="card-header">
+                                        <h5 class="card-title">Notification Settings</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <div class="custom-control custom-switch">
+                                                <input asp-for="EnableEmailNotifications" class="custom-control-input" type="checkbox" />
+                                                <label asp-for="EnableEmailNotifications" class="custom-control-label"></label>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <div class="custom-control custom-switch">
+                                                <input asp-for="EnableSMSAlerts" class="custom-control-input" type="checkbox" />
+                                                <label asp-for="EnableSMSAlerts" class="custom-control-label"></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-body text-center">
+                                        <button type="submit" class="btn btn-primary btn-lg">
+                                            <i class="fas fa-save"></i> Save Settings
+                                        </button>
+                                        <a asp-action="Index" class="btn btn-secondary btn-lg ml-2">
+                                            <i class="fas fa-undo"></i> Reset
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Security: Change Username / Change Password -->
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <div class="card card-secondary">
+                                <div class="card-header">
+                                    <h5 class="card-title">Change Username</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form asp-action="ChangeUsername" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <div class="form-group">
+                                            <label>Current Username</label>
+                                            <input type="text" name="currentUsername" class="form-control" required />
+                                        </div>
+                                        <div class="form-group">
+                                            <label>New Username</label>
+                                            <input type="text" name="newUsername" class="form-control" required />
+                                        </div>
+                                        <button type="submit" class="btn btn-warning">
+                                            <i class="fas fa-user-edit"></i> Update Username
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card card-secondary">
+                                <div class="card-header">
+                                    <h5 class="card-title">Change Password</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form asp-action="ChangePassword" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <div class="form-group">
+                                            <label>Current Password</label>
+                                            <input type="password" name="currentPassword" class="form-control" required />
+                                        </div>
+                                        <div class="form-group">
+                                            <label>New Password</label>
+                                            <input type="password" name="newPassword" class="form-control" minlength="6" required />
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Confirm New Password</label>
+                                            <input type="password" name="confirmPassword" class="form-control" minlength="6" required />
+                                        </div>
+                                        <button type="submit" class="btn btn-warning">
+                                            <i class="fas fa-key"></i> Update Password
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
